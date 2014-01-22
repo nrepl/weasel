@@ -1,7 +1,16 @@
 <html>
-    <body>
-        <script src="out/goog/base.js" type="text/javascript"></script>
-        <script src="repl_test.js" type="text/javascript"></script>
-        <script type="text/javascript">goog.require("repl_test.core");</script>
-    </body>
+  <head>
+    <meta charset="UTF-8">
+    <title>Browser-connected REPL through nREPL with Piggieback</title>
+  </head>
+  <body>
+    <div id="content">
+      <script type="text/javascript" src="out/goog/base.js"></script>
+      <script type="text/javascript" src="weasel.js"></script>
+      <input type="text" name="afield" id="afield"/>
+      <script type="text/javascript">
+        goog.require('weasel.example');
+      </script>
+    </div>
+  </body>
 </html>
