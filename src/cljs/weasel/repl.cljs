@@ -26,18 +26,14 @@
     (swap! ws-connection (constantly repl-connection))
     (event/listen repl-connection :opened
       (fn [evt]
-        (.log js/console "Opened WS connection!")
-        (net/transmit repl-connection {:op :hello})))
+        (.log js/console "Opened WS connection!")))
     (event/listen repl-connection :message
       (fn [evt]
-        (binding [cljs.core/*print-fn* (fn [& args]
-                                         (.apply js/console.log js/console (into-array args)))]
-          (.log js/console "received msg" (.-message evt))
-          (let [{:keys [op] :as message} (read-string (.-message evt))
-                response (process-message message)]
-            (println "got a message" op "from" message "... dispatching ...")
-            (println "sending to server:" response)
-            (net/transmit repl-connection response)))))
+        (let [{:keys [op] :as message} (read-string (.-message evt))
+              response (process-message message)]
+          (println "got a message" op "from" message "... dispatching ...")
+          (println "sending to server:" response)
+          (net/transmit repl-connection response))))
     (event/listen repl-connection :error
-      (fn [evt] (.error js/console "WS error" evt)))
+      (fn [evt] (.error js/console "WebSocket error" evt)))
     (net/connect repl-connection repl-server-url)))
