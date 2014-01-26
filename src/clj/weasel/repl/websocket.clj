@@ -24,17 +24,16 @@
 (defn websocket-setup-env
   [_]
   (server/start {:port 9001})
-  (println "started server"))
+  (println "<< started server >>"))
 
 (defn websocket-tear-down-env
   []
   (server/stop)
-  (println "stopped server"))
+  (println "<< stopped server >>"))
 
 (defn websocket-eval
   [js]
-  (server/send! (pr-str {:op :eval-js, :code js}))
-  {:status :success, :value "42"})
+  (read-string (server/ask! (pr-str {:op :eval-js, :code js}))))
 
 (defn repl-env
   "Returns a JS environment to pass to repl or piggieback"

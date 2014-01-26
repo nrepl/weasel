@@ -16,9 +16,15 @@
 (defmethod process-message
   :eval-js
   [message]
-  (let [code (:code message)
-        result {:status :success :value (js* "eval(~{code})")}]
-    (pr-str result)))
+  (let [code (:code message)]
+    (try
+      {:status :success, :value (js* "eval(~{code})")}
+      (catch js/Error e
+        {:status :exception
+         :value (pr-str e)
+         :stacktrace (if (.hasOwnProperty e "stack")
+                       (.-stack e)
+                       ("No stacktrace available."))}))))
 
 (defn connect
   [repl-server-url]
@@ -30,7 +36,7 @@
     (event/listen repl-connection :message
       (fn [evt]
         (let [{:keys [op] :as message} (read-string (.-message evt))
-              response (process-message message)]
+              response (-> message process-message pr-str)]
           (println "got a message" op "from" message "... dispatching ...")
           (println "sending to server:" response)
           (net/transmit repl-connection response))))
