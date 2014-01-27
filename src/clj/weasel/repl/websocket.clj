@@ -33,7 +33,11 @@
 
 (defn websocket-eval
   [js]
-  (read-string (server/ask! (pr-str {:op :eval-js, :code js}))))
+  (try
+    (read-string (server/ask! (pr-str {:op :eval-js, :code js})))
+    (catch Exception e
+      {:status :error,
+       :value (str "Error evaluating form: " (.getMessage e))})))
 
 (defn repl-env
   "Returns a JS environment to pass to repl or piggieback"

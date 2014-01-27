@@ -37,8 +37,8 @@
       (fn [evt]
         (let [{:keys [op] :as message} (read-string (.-message evt))
               response (-> message process-message pr-str)]
-          (println "got a message" op "from" message "... dispatching ...")
-          (println "sending to server:" response)
+          #_(println "got a message" op "from" message "... dispatching ...")
+          #_(println "sending to server:" response)
           (net/transmit repl-connection response))))
     (event/listen repl-connection :error
       (fn [evt] (.error js/console "WebSocket error" evt)))

@@ -1,5 +1,6 @@
 (ns weasel.repl.server
-  (:require [org.httpkit.server :as http :refer [on-close on-receive with-channel]]))
+  (:require [org.httpkit.server :as http :refer [on-close on-receive with-channel]])
+  (:import [java.io IOException]))
 
 ;;; only support a single client/channel. i'm not sure how we could
 ;;; support more than one from the same repl session, or if that even
@@ -29,16 +30,12 @@
 
 (defn ask!
   "Send message to client and block waiting for a response, returning
-   that response. If no client is connected, block until one connects
-   and then perform the ask."
+  that response. If no client is connected when called, throws an exception."
   [msg]
   (let [p (promise)]
-    ;; this is buggy when called from a REPL, e.g. if a bunch of evals
-    ;; are attempted and then canceled by the user, they will still be
-    ;; sent to the client once it connects.
+    (when (nil? (:channel @state))
+      (throw (IOException. "No client connected to WebSocket channel.")))
     (future
-      (while (nil? (:channel @state))
-        (Thread/sleep 200))
       (swap! state assoc :response-fn
         (fn [response]
           (swap! state dissoc :response-fn)
