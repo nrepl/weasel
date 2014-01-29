@@ -4,19 +4,6 @@
 
 (def current-repl-env (atom nil))
 
-(declare
-  websocket-eval
-  websocket-setup-env
-  load-javascript
-  websocket-tear-down-env)
-
-(defrecord WebSocketEnv []
-  cljs.repl/IJavaScriptEnv
-  (-setup [this] (websocket-setup-env this))
-  (-evaluate [_ _ _ js] (websocket-eval js))
-  (-load [this ns url] (load-javascript this ns url))
-  (-tear-down [_] (websocket-tear-down-env)))
-
 (defn websocket-receive
   [channel msg]
   (println "received message" channel msg))
@@ -39,10 +26,18 @@
       {:status :error,
        :value (str "Error evaluating form: " (.getMessage e))})))
 
+(defn load-javascript
+  [this ns url])
+
 (defn repl-env
   "Returns a JS environment to pass to repl or piggieback"
   [& {:as opts}]
-  (WebSocketEnv.))
+  (reify
+    cljs.repl/IJavaScriptEnv
+    (-setup [this] (websocket-setup-env this))
+    (-evaluate [_ _ _ js] (websocket-eval js))
+    (-load [this ns url] (load-javascript this ns url))
+    (-tear-down [_] (websocket-tear-down-env))))
 
 (comment
   (cemerick.piggieback/cljs-repl
