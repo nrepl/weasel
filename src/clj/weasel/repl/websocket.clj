@@ -3,9 +3,7 @@
   (:require [cljs.repl]
             [cljs.compiler :as cmp]
             [cljs.env :as env]
-            [cljs.analyzer :as ana]
-            [weasel.repl.server :as server]
-            [clojure.pprint :as pp]))
+            [weasel.repl.server :as server]))
 
 (def loaded-libs (atom #{}))
 
@@ -25,7 +23,7 @@
   (println "<< stopped server >>"))
 
 (defn websocket-eval
-  [this js]
+  [js]
   (try
     (read-string (server/ask! (pr-str {:op :eval-js, :code js})))
     (catch Exception e
@@ -33,14 +31,14 @@
        :value (str "Error evaluating form: " (.getMessage e))})))
 
 (defn load-javascript
-  "Does this ever get called?"
+  "TODO: determine when/how this is called"
   [repl-env ns url]
   (println "loading javascript" ns url))
 
 (defrecord WebsocketEnv []
   cljs.repl/IJavaScriptEnv
   (-setup [this] (websocket-setup-env this))
-  (-evaluate [this _ _ js] (websocket-eval this js))
+  (-evaluate [_ _ _ js] (websocket-eval js))
   (-load [this ns url] (load-javascript this ns url))
   (-tear-down [_] (websocket-tear-down-env)))
 
