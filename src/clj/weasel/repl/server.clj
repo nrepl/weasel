@@ -30,7 +30,8 @@
 
 (defn ask!
   "Send message to client and block waiting for a response, returning
-  that response. If no client is connected when called, throws an exception."
+  that response. If no client is connected when called, throws an
+  exception."
   [msg]
   (let [p (promise)]
     (when (nil? (:channel @state))
