@@ -13,6 +13,8 @@
 
 (defn websocket-setup-env
   [this]
+  (require 'cljs.repl.reflect)
+  (cljs.repl/analyze-source (:src this))
   (cmp/with-core-cljs)
   (server/start {:port 9001})
   (println "<< started server >>"))
