@@ -27,11 +27,12 @@
 
 (defn websocket-eval
   [js]
-  (try
-    (read-string (server/ask! (pr-str {:op :eval-js, :code js})))
-    (catch Exception e
-      {:status :error,
-       :value (str "Error evaluating form: " (.getMessage e))})))
+  (let [ret (server/ask! (pr-str {:op :eval-js, :code js}))]
+    (try
+      (read-string ret)
+      (catch Exception e
+        {:status :error,
+         :value (str "Could not read return value: " ret)}))))
 
 (defn load-javascript
   "TODO: determine when/how this is called"
