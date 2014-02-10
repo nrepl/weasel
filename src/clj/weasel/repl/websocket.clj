@@ -1,6 +1,7 @@
 (ns weasel.repl.websocket
   (:refer-clojure :exclude [loaded-libs])
   (:require [cljs.repl]
+            [cljs.repl.browser]
             [cljs.compiler :as cmp]
             [cljs.env :as env]
             [weasel.repl.server :as server]))
@@ -53,11 +54,19 @@
                opts)]
     opts))
 
-(comment
-  (cemerick.piggieback/cljs-repl
-    :repl-env (weasel.repl.websocket/repl-env :port 9001)
-    :verbose true)
-  )
+(defn- start-brepl
+  ([] (start-brepl 9000))
+  ([port]
+     (cemerick.piggieback/cljs-repl
+       :repl-env (cljs.repl.browser/repl-env :port port)
+       )))
+
+(defn- start-wrepl
+  ([] (start-wrepl 9001))
+  ([port]
+     (cemerick.piggieback/cljs-repl
+       :repl-env (repl-env :port port)
+       :verbose true)))
 
 (comment
   (let [user-env '{:ns nil :locals {}}
