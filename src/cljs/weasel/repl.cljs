@@ -18,7 +18,7 @@
   [message]
   (let [code (:code message)]
     (try
-      {:status :success, :value (js* "eval(~{code})")}
+      {:status :success, :value (str (js* "eval(~{code})"))}
       (catch js/Error e
         {:status :exception
          :value (pr-str e)
