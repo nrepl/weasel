@@ -53,7 +53,7 @@
   (cmp/with-core-cljs)
   (server/start
     (fn [data] (process-message this (read-string data)))
-    :port 9001)
+    :port (:port this))
   (println "<< started server >>"))
 
 (defn websocket-tear-down-env
@@ -87,6 +87,7 @@
   [& {:as opts}]
   (let [opts (merge (WebsocketEnv.)
                {::env/compiler (env/default-compiler-env)
+                :port 9001
                 :src "src/"}
                opts)]
     opts))
