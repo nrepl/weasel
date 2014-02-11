@@ -32,7 +32,8 @@
   [_ message]
   (let [string (:value message)]
     (binding [*out* (or @repl-out *out*)]
-      (print (read-string string)))))
+      (print (read-string string))
+      (flush))))
 
 ;;; websocket receiver doesn't run in same thread as the REPL, so
 ;;; env/*compiler* isn't bound on the receiver.
