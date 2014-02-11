@@ -9,6 +9,11 @@
 (defmulti process-message :op)
 
 (defmethod process-message
+  :error
+  [message]
+  (throw (js/Error. (str "Websocket REPL error " (:type message)))))
+
+(defmethod process-message
   :eval-js
   [message]
   (let [code (:code message)]
