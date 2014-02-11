@@ -22,6 +22,11 @@
                                (.-stack e)
                                ("No stacktrace available."))}))}))
 
+(defn repl-print
+  [x]
+  (if-let [conn @ws-connection]
+    (net/transmit @ws-connection {:op :print :value (pr-str x)})))
+
 (defn connect
   [repl-server-url]
   (let [repl-connection (ws/websocket-connection)]
@@ -29,6 +34,7 @@
 
     (event/listen repl-connection :opened
       (fn [evt]
+        (net/transmit repl-connection (pr-str {:op :ready}))
         (.info js/console "Opened WS connection!")))
 
     (event/listen repl-connection :message

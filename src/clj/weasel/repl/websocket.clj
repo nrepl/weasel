@@ -1,10 +1,12 @@
 (ns weasel.repl.websocket
   (:refer-clojure :exclude [loaded-libs])
   (:require [cljs.repl]
-            [cljs.repl.browser]
+            [cljs.closure :as cljsc]
             [cljs.compiler :as cmp]
             [cljs.env :as env]
             [weasel.repl.server :as server]))
+
+(declare send-for-eval!)
 
 (def loaded-libs (atom #{}))
 
@@ -16,14 +18,32 @@
   "stores a promise fulfilled by a client's eval response"
   (atom nil))
 
-(defmulti process-message :op)
+(defmulti process-message (fn [_ msg] (:op msg)))
 
 (defmethod process-message
   :result
-  [message]
+  [_ message]
   (let [result (:value message)]
     (when-not (nil? @client-response)
       (deliver @client-response result))))
+
+(defmethod process-message
+  :print
+  [_ message]
+  (let [string (:value message)]
+    (binding [*out* (or @repl-out *out*)]
+      (print (read-string string)))))
+
+;;; websocket receiver doesn't run in same thread as the REPL, so
+;;; env/*compiler* isn't bound on the receiver.
+(defmethod process-message
+  :ready
+  [renv _]
+  (binding [*out* (or @repl-out *out*)
+            env/*compiler* (::env/compiler renv)]
+    (send-for-eval! (cljsc/compile-form-seq
+                      '[(ns cljs.user)
+                        (set-print-fn! weasel.repl/repl-print)]))))
 
 (defn websocket-setup-env
   [this]
@@ -31,7 +51,9 @@
   (require 'cljs.repl.reflect)
   (cljs.repl/analyze-source (:src this))
   (cmp/with-core-cljs)
-  (server/start (comp process-message read-string) :port 9001)
+  (server/start
+    (fn [data] (process-message this (read-string data)))
+    :port 9001)
   (println "<< started server >>"))
 
 (defn websocket-tear-down-env
@@ -43,7 +65,7 @@
 (defn websocket-eval
   [js]
   (reset! client-response (promise))
-  (server/send! (pr-str {:op :eval-js, :code js}))
+  (send-for-eval! js)
   (let [ret @@client-response]
     (reset! client-response nil)
     ret))
@@ -69,12 +91,8 @@
                opts)]
     opts))
 
-(defn- start-brepl
-  ([] (start-brepl 9000))
-  ([port]
-     (cemerick.piggieback/cljs-repl
-       :repl-env (cljs.repl.browser/repl-env :port port)
-       )))
+(defn- send-for-eval! [js]
+  (server/send! (pr-str {:op :eval-js, :code js})))
 
 (defn- start-wrepl
   ([] (start-wrepl 9001))
@@ -88,6 +106,7 @@
         cenv (atom {})]
     (env/with-compiler-env cenv
       (cmp/with-core-cljs
-        (cmp/emit (ana/analyze user-env '(println "hello world"))))
+        #_(cmp/emit (ana/analyze user-env '(println "hello world")))
+        (cljsc/compile-form-seq '[(ns cljs.user)]))
       ))
   )
