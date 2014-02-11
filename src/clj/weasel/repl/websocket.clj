@@ -8,31 +8,45 @@
 
 (def loaded-libs (atom #{}))
 
-(defn websocket-receive
-  [channel msg]
-  (println "received message" channel msg))
+(def ^:private repl-out
+  "stores the value of *out* when the server is started"
+  (atom nil))
+
+(def ^:private client-response
+  "stores a promise fulfilled by a client's eval response"
+  (atom nil))
+
+(defmulti process-message :op)
+
+(defmethod process-message
+  :result
+  [message]
+  (let [result (:value message)]
+    (when-not (nil? @client-response)
+      (deliver @client-response result))))
 
 (defn websocket-setup-env
   [this]
+  (reset! repl-out *out*)
   (require 'cljs.repl.reflect)
   (cljs.repl/analyze-source (:src this))
   (cmp/with-core-cljs)
-  (server/start {:port 9001})
+  (server/start (comp process-message read-string) :port 9001)
   (println "<< started server >>"))
 
 (defn websocket-tear-down-env
   []
+  (reset! repl-out nil)
   (server/stop)
   (println "<< stopped server >>"))
 
 (defn websocket-eval
   [js]
-  (let [ret (server/ask! (pr-str {:op :eval-js, :code js}))]
-    (try
-      (read-string ret)
-      (catch Exception e
-        {:status :error,
-         :value (str "Could not read return value: " ret)}))))
+  (reset! client-response (promise))
+  (server/send! (pr-str {:op :eval-js, :code js}))
+  (let [ret @@client-response]
+    (reset! client-response nil)
+    ret))
 
 (defn load-javascript
   "TODO: determine when/how this is called"
@@ -67,7 +81,7 @@
   ([port]
      (cemerick.piggieback/cljs-repl
        :repl-env (repl-env :port port)
-       :verbose true)))
+       :verbose false)))
 
 (comment
   (let [user-env '{:ns nil :locals {}}

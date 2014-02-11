@@ -12,14 +12,15 @@
   :eval-js
   [message]
   (let [code (:code message)]
-    (try
-      {:status :success, :value (str (js* "eval(~{code})"))}
-      (catch js/Error e
-        {:status :exception
-         :value (pr-str e)
-         :stacktrace (if (.hasOwnProperty e "stack")
-                       (.-stack e)
-                       ("No stacktrace available."))}))))
+    {:op :result
+     :value (try
+              {:status :success, :value (str (js* "eval(~{code})"))}
+              (catch js/Error e
+                {:status :exception
+                 :value (pr-str e)
+                 :stacktrace (if (.hasOwnProperty e "stack")
+                               (.-stack e)
+                               ("No stacktrace available."))}))}))
 
 (defn connect
   [repl-server-url]
