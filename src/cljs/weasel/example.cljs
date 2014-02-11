@@ -5,4 +5,4 @@
 (enable-console-print!)
 
 #_(cljs-repl/connect "http://localhost:9000/repl")
-(ws-repl/connect "ws://localhost:9001/")
+(ws-repl/connect "ws://localhost:9001/" :verbose true)
