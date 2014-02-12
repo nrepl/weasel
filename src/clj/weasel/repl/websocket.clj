@@ -54,8 +54,10 @@
   (cmp/with-core-cljs)
   (server/start
     (fn [data] (process-message this (read-string data)))
+    :ip (:ip this)
     :port (:port this))
-  (println "<< started server >>"))
+  (let [{:keys [ip port]} this]
+    (println (str "<< started server on " ip ":" port " >>"))))
 
 (defn websocket-tear-down-env
   []
@@ -88,6 +90,7 @@
   [& {:as opts}]
   (let [opts (merge (WebsocketEnv.)
                {::env/compiler (env/default-compiler-env)
+                :ip "127.0.0.1"
                 :port 9001
                 :src "src/"}
                opts)]
@@ -98,9 +101,10 @@
 
 (defn- start-wrepl
   ([] (start-wrepl 9001))
-  ([port]
+  ([port] (start-wrepl "127.0.0.1" 9001))
+  ([ip port]
      (cemerick.piggieback/cljs-repl
-       :repl-env (repl-env :port port)
+       :repl-env (repl-env :ip ip :port port)
        :verbose false)))
 
 (comment

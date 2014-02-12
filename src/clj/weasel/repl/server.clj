@@ -29,10 +29,10 @@
   (:channel @state))
 
 (defn start
-  [f & {:keys [port]}]
+  [f & {:keys [ip port] :as opts}]
   {:pre [(ifn? f)]}
   (swap! state
-    assoc :server (http/run-server #'handler {:port (or port 9001)})
+    assoc :server (http/run-server #'handler opts)
           :response-fn f))
 
 (defn stop []
