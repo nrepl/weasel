@@ -20,7 +20,39 @@
   "stores a promise fulfilled by a client's eval response"
   (atom nil))
 
-(defmulti process-message (fn [_ msg] (:op msg)))
+(declare
+  websocket-setup-env
+  websocket-eval
+  load-javascript
+  websocket-tear-down-env
+  transitive-deps)
+
+(defrecord WebsocketEnv []
+  cljs.repl/IJavaScriptEnv
+  (-setup [this] (websocket-setup-env this))
+  (-evaluate [_ _ _ js] (websocket-eval js))
+  (-load [this ns url] (load-javascript this ns url))
+  (-tear-down [_] (websocket-tear-down-env)))
+
+(defn repl-env
+  "Returns a JS environment to pass to repl or piggieback"
+  [& {:as opts}]
+ (let [opts (merge (WebsocketEnv.)
+               {::env/compiler (env/default-compiler-env)
+                :ip "127.0.0.1"
+                :port 9001
+                :preloaded-libs []
+                :src "src/"}
+               opts)]
+    (env/with-compiler-env (::env/compiler opts)
+      (reset! preloaded-libs
+        (set/union
+          (transitive-deps ["weasel.repl"])
+          (into #{} (map str (:preloaded-libs opts)))))
+      (reset! loaded-libs @preloaded-libs))
+    opts))
+
+(defmulti ^:private process-message (fn [_ msg] (:op msg)))
 
 (defmethod process-message
   :result
@@ -47,7 +79,7 @@
                         '[(ns cljs.user)
                           (set-print-fn! weasel.repl/repl-print)])))))
 
-(defn websocket-setup-env
+(defn- websocket-setup-env
   [this]
   (reset! repl-out *out*)
   (require 'cljs.repl.reflect)
@@ -60,14 +92,14 @@
   (let [{:keys [ip port]} this]
     (println (str "<< started server on " ip ":" port " >>"))))
 
-(defn websocket-tear-down-env
+(defn- websocket-tear-down-env
   []
   (reset! repl-out nil)
   (reset! loaded-libs #{})
   (server/stop)
   (println "<< stopped server >>"))
 
-(defn websocket-eval
+(defn- websocket-eval
   [js]
   (reset! client-response (promise))
   (send-for-eval! js)
@@ -75,38 +107,11 @@
     (reset! client-response nil)
     ret))
 
-(defn load-javascript
+(defn- load-javascript
   [_ nses url]
   (when-let [not-loaded (seq (remove @loaded-libs nses))]
     (websocket-eval (slurp url))
     (swap! loaded-libs #(apply conj % not-loaded))))
-
-(defrecord WebsocketEnv []
-  cljs.repl/IJavaScriptEnv
-  (-setup [this] (websocket-setup-env this))
-  (-evaluate [_ _ _ js] (websocket-eval js))
-  (-load [this ns url] (load-javascript this ns url))
-  (-tear-down [_] (websocket-tear-down-env)))
-
-(declare transitive-deps)
-
-(defn repl-env
-  "Returns a JS environment to pass to repl or piggieback"
-  [& {:as opts}]
- (let [opts (merge (WebsocketEnv.)
-               {::env/compiler (env/default-compiler-env)
-                :ip "127.0.0.1"
-                :port 9001
-                :preloaded-libs []
-                :src "src/"}
-               opts)]
-    (env/with-compiler-env (::env/compiler opts)
-      (reset! preloaded-libs
-        (set/union
-          (transitive-deps ["weasel.repl"])
-          (into #{} (map str (:preloaded-libs opts)))))
-      (reset! loaded-libs @preloaded-libs))
-    opts))
 
 (defn- transitive-deps
   "Returns a flattened set of all transitive namespaces required and
