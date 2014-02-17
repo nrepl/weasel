@@ -14,6 +14,7 @@
 
   :plugins [[lein-cljsbuild "1.0.1"]]
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+  :resource-paths ["src/cljs"]
   :source-paths ["src/clj"]
 
   :cljsbuild {

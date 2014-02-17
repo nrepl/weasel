@@ -4,11 +4,13 @@
             [cljs.closure :as cljsc]
             [cljs.compiler :as cmp]
             [cljs.env :as env]
+            [clojure.set :as set]
             [weasel.repl.server :as server]))
 
 (declare send-for-eval!)
 
 (def loaded-libs (atom #{}))
+(def preloaded-libs (atom #{}))
 
 (def ^:private repl-out
   "stores the value of *out* when the server is started"
@@ -35,11 +37,10 @@
       (print (read-string string))
       (flush))))
 
-;;; websocket receiver doesn't run in same thread as the REPL, so
-;;; env/*compiler* isn't bound on the receiver.
 (defmethod process-message
   :ready
   [renv _]
+  (reset! loaded-libs @preloaded-libs)
   (env/with-compiler-env (::env/compiler renv)
     (binding [*out* (or @repl-out *out*)]
       (send-for-eval! (cljsc/compile-form-seq
@@ -62,6 +63,7 @@
 (defn websocket-tear-down-env
   []
   (reset! repl-out nil)
+  (reset! loaded-libs #{})
   (server/stop)
   (println "<< stopped server >>"))
 
@@ -74,9 +76,10 @@
     ret))
 
 (defn load-javascript
-  "TODO: determine when/how this is called"
-  [repl-env ns url]
-  (println "loading javascript" ns url))
+  [_ nses url]
+  (when-let [not-loaded (seq (remove @loaded-libs nses))]
+    (websocket-eval (slurp url))
+    (swap! loaded-libs #(apply conj % not-loaded))))
 
 (defrecord WebsocketEnv []
   cljs.repl/IJavaScriptEnv
@@ -85,16 +88,34 @@
   (-load [this ns url] (load-javascript this ns url))
   (-tear-down [_] (websocket-tear-down-env)))
 
+(declare transitive-deps)
+
 (defn repl-env
   "Returns a JS environment to pass to repl or piggieback"
   [& {:as opts}]
-  (let [opts (merge (WebsocketEnv.)
+ (let [opts (merge (WebsocketEnv.)
                {::env/compiler (env/default-compiler-env)
                 :ip "127.0.0.1"
                 :port 9001
+                :preloaded-libs []
                 :src "src/"}
                opts)]
+    (env/with-compiler-env (::env/compiler opts)
+      (reset! preloaded-libs
+        (set/union
+          (transitive-deps ["weasel.repl"])
+          (into #{} (map str (:preloaded-libs opts)))))
+      (reset! loaded-libs @preloaded-libs))
     opts))
+
+(defn- transitive-deps
+  "Returns a flattened set of all transitive namespaces required and
+  provided by the given sequence of namespaces"
+  [nses]
+  (let [collect-deps #(flatten (mapcat (juxt :provides :requires) %))
+        cljs-deps (->> nses (cljsc/cljs-dependencies {}) collect-deps)
+        js-deps (->> cljs-deps (cljsc/js-dependencies {}) collect-deps)]
+    (disj (into #{} (concat js-deps cljs-deps)) nil)))
 
 (defn- send-for-eval! [js]
   (server/send! (pr-str {:op :eval-js, :code js})))
@@ -111,8 +132,6 @@
   (let [user-env '{:ns nil :locals {}}
         cenv (atom {})]
     (env/with-compiler-env cenv
-      (cmp/with-core-cljs
-        #_(cmp/emit (ana/analyze user-env '(println "hello world")))
-        (cljsc/compile-form-seq '[(ns cljs.user)]))
-      ))
+      (pprint (mapcat (juxt :provides :requires)
+                 (cljsc/cljs-dependencies {} ["weasel.repl"])))))
   )
