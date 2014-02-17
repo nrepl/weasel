@@ -50,6 +50,7 @@
 
     (event/listen repl-connection :closed
       (fn [evt]
+        (reset! ws-connection nil)
         (when verbose (.info js/console "Closed Websocket REPL connection"))))
 
     (event/listen repl-connection :error
