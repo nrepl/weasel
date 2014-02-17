@@ -40,11 +40,11 @@
 (defmethod process-message
   :ready
   [renv _]
-  (binding [*out* (or @repl-out *out*)
-            env/*compiler* (::env/compiler renv)]
-    (send-for-eval! (cljsc/compile-form-seq
-                      '[(ns cljs.user)
-                        (set-print-fn! weasel.repl/repl-print)]))))
+  (env/with-compiler-env (::env/compiler renv)
+    (binding [*out* (or @repl-out *out*)]
+      (send-for-eval! (cljsc/compile-form-seq
+                        '[(ns cljs.user)
+                          (set-print-fn! weasel.repl/repl-print)])))))
 
 (defn websocket-setup-env
   [this]
