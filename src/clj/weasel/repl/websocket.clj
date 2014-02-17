@@ -125,14 +125,6 @@
 (defn- send-for-eval! [js]
   (server/send! (pr-str {:op :eval-js, :code js})))
 
-(defn- start-wrepl
-  ([] (start-wrepl 9001))
-  ([port] (start-wrepl "127.0.0.1" 9001))
-  ([ip port]
-     (cemerick.piggieback/cljs-repl
-       :repl-env (repl-env :ip ip :port port)
-       :verbose false)))
-
 (comment
   (let [user-env '{:ns nil :locals {}}
         cenv (atom {})]

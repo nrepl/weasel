@@ -5,4 +5,4 @@ goog.addDependency("../clojure/browser/net.js", ['clojure.browser.net'], ['goog.
 goog.addDependency("../weasel/impls/websocket.js", ['weasel.impls.websocket'], ['clojure.browser.event', 'clojure.browser.net', 'cljs.core', 'goog.net.WebSocket']);
 goog.addDependency("../cljs/reader.js", ['cljs.reader'], ['cljs.core', 'goog.string']);
 goog.addDependency("../weasel/repl.js", ['weasel.repl'], ['clojure.browser.event', 'clojure.browser.net', 'cljs.core', 'weasel.impls.websocket', 'cljs.reader']);
-goog.addDependency("../weasel/example.js", ['weasel.example'], ['cljs.core', 'weasel.repl']);
+goog.addDependency("../weasel_example/example.js", ['weasel_example.example'], ['cljs.core', 'weasel.repl']);
