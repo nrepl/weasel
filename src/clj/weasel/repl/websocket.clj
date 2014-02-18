@@ -90,7 +90,7 @@
     :ip (:ip this)
     :port (:port this))
   (let [{:keys [ip port]} this]
-    (println (str "<< started server on " ip ":" port " >>"))))
+    (println (str "<< started Weasel server on ws://" ip ":" port " >>"))))
 
 (defn- websocket-tear-down-env
   []
