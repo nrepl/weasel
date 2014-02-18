@@ -22,10 +22,9 @@ environments.
 ## usage
 
 Weasel is intended to be used with Chas Emerick's
-[https://github.com/cemerick/piggieback](piggieback) nREPL
-middleware.  Once you've set that up, add weasel as a dependency
-(available from [Clojars](http://clojars.org)) to your Leiningen
-`project.clj`:
+[piggieback](https://github.com/cemerick/piggieback) nREPL middleware.
+Once you've set that up, add weasel as a dependency (available from
+[Clojars](http://clojars.org)) to your Leiningen `project.clj`:
 
 ```clojure
 [weasel "0.1.0"]
