@@ -10,7 +10,7 @@
                  [weasel "0.1.0"]]
 
   :source-paths ["src"]
-  :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.1.2"]]
+  :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.1.3"]]
                    :plugins [[lein-cljsbuild "1.0.2"]]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
                    :cljsbuild {:builds [{:id "weasel-example"
