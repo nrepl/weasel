@@ -10,3 +10,4 @@ pom.xml
 /.nrepl-port
 .repl
 /checkouts
+.nrepl-port
