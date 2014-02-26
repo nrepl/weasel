@@ -4,7 +4,12 @@
             [cljs.reader :as reader :refer [read-string]]
             [weasel.impls.websocket :as ws]))
 
-(def ws-connection (atom nil))
+(def ^:private ws-connection (atom nil))
+
+(defn alive? []
+  "Returns truthy value if the REPL is attempting to connect or is
+   connected, or falsy value otherwise."
+  (not (nil? @ws-connection)))
 
 (defmulti process-message :op)
 
