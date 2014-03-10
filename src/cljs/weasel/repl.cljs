@@ -38,14 +38,15 @@
     (net/transmit @ws-connection {:op :print :value (pr-str x)})))
 
 (defn connect
-  [repl-server-url & {:keys [verbose]}]
+  [repl-server-url & {:keys [verbose on-open on-error on-close]}]
   (let [repl-connection (ws/websocket-connection)]
     (swap! ws-connection (constantly repl-connection))
 
     (event/listen repl-connection :opened
       (fn [evt]
         (net/transmit repl-connection (pr-str {:op :ready}))
-        (when verbose (.info js/console "Opened Websocket REPL connection"))))
+        (when verbose (.info js/console "Opened Websocket REPL connection"))
+        (when (fn? on-open) (on-open))))
 
     (event/listen repl-connection :message
       (fn [evt]
@@ -56,9 +57,12 @@
     (event/listen repl-connection :closed
       (fn [evt]
         (reset! ws-connection nil)
-        (when verbose (.info js/console "Closed Websocket REPL connection"))))
+        (when verbose (.info js/console "Closed Websocket REPL connection"))
+        (when (fn? on-close) (on-close))))
 
     (event/listen repl-connection :error
-      (fn [evt] (.error js/console "WebSocket error" evt)))
+      (fn [evt]
+        (.error js/console "WebSocket error" evt)
+        (when (fn? on-error) (on-error evt))))
 
     (net/connect repl-connection repl-server-url)))
