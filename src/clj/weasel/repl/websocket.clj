@@ -37,13 +37,17 @@
 (defn repl-env
   "Returns a JS environment to pass to repl or piggieback"
   [& {:as opts}]
- (let [opts (merge (WebsocketEnv.)
-               {::env/compiler (env/default-compiler-env)
+  ;; cljs master default-compiler-env takes an options argument to
+  ;; which we should pass opts. change this for the next cljs release
+  (let [compiler-env (env/default-compiler-env)
+        opts (merge (WebsocketEnv.)
+               {::env/compiler compiler-env
                 :ip "127.0.0.1"
                 :port 9001
                 :preloaded-libs []
                 :src "src/"}
                opts)]
+    (swap! compiler-env assoc :js-dependency-index (cljsc/js-dependency-index opts))
     (env/with-compiler-env (::env/compiler opts)
       (reset! preloaded-libs
         (set/union
