@@ -3,6 +3,7 @@
   (:require [cljs.repl]
             [cljs.closure :as cljsc]
             [cljs.compiler :as cmp]
+            [cljs.js-deps :as js-deps]
             [cljs.env :as env]
             [clojure.set :as set]
             [weasel.repl.server :as server]))
@@ -47,7 +48,7 @@
                 :preloaded-libs []
                 :src "src/"}
                opts)]
-    (swap! compiler-env assoc :js-dependency-index (cljsc/js-dependency-index opts))
+    (swap! compiler-env assoc :js-dependency-index (js-deps/js-dependency-index opts))
     (env/with-compiler-env (::env/compiler opts)
       (reset! preloaded-libs
         (set/union
