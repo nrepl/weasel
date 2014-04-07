@@ -1,4 +1,4 @@
-(defproject weasel "0.2.0"
+(defproject weasel "0.2.0-SNAPSHOT"
   :description "websocket REPL environment for ClojureScript"
   :url "http://github.com/tomjakubowski/weasel"
   :license {:name "Unlicense"
