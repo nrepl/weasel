@@ -6,7 +6,7 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [org.clojure/clojurescript "0.0-2173"]
+                 [org.clojure/clojurescript "0.0-2202"]
                  [weasel "0.1.0"]]
 
   :source-paths ["src"]

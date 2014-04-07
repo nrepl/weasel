@@ -2,7 +2,7 @@
 
 ## Changes
 
-* Requires ClojureScript 0.0-2173
+* Requires ClojureScript 0.0-2202
 
 ## Enhancements
 
