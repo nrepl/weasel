@@ -30,7 +30,7 @@
                  :value (pr-str e)
                  :stacktrace (if (.hasOwnProperty e "stack")
                                (.-stack e)
-                               ("No stacktrace available."))}))}))
+                               "No stacktrace available.")}))}))
 
 (defn repl-print
   [x]
