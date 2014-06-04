@@ -1,3 +1,11 @@
+# 0.2.1
+
+## Bug fixes
+
+* Don't try to call string when no stacktrace available.
+* Handle exceptions that are not instances of `js/Error` (e.g. `(throw
+  "foo")`)
+
 # 0.2.0
 
 ## Changes
