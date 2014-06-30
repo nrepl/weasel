@@ -42,7 +42,7 @@
     (net/transmit @ws-connection {:op :print :value (pr-str x)})))
 
 (defn connect
-  [repl-server-url & {:keys [verbose on-open on-error on-close]}]
+  [repl-server-url & {:keys [verbose on-open on-error on-close] :or {verbose true}}]
   (let [repl-connection (ws/websocket-connection)]
     (swap! ws-connection (constantly repl-connection))
 

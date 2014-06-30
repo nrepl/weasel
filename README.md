@@ -48,7 +48,7 @@ nil
 
 In your project's ClojureScript, require the Weasel client namespace
 and connect to the REPL, optionally specifying verbosity (defaults to
-false):
+true):
 
 ```clojure
 (ns my.cljs.core
