@@ -66,7 +66,7 @@
 
     (event/listen repl-connection :error
       (fn [evt]
-        (.error js/console "WebSocket error" evt)
+        (when verbose (.error js/console "WebSocket error" evt))
         (when (fn? on-error) (on-error evt))))
 
     (net/connect repl-connection repl-server-url)))
