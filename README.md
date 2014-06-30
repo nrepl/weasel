@@ -2,6 +2,8 @@
 
 WebSocket-connected REPL environment for ClojureScript.
 
+[![Clojars Project](http://clojars.org/weasel/latest-version.svg)](http://clojars.org/weasel)
+
 ## why?
 
 The traditional browser-connected REPL shopped with ClojureScript and
