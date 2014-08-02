@@ -6,7 +6,7 @@ WebSocket-connected REPL environment for ClojureScript.
 
 ## why?
 
-The traditional browser-connected REPL shopped with ClojureScript and
+The traditional browser-connected REPL shipped with ClojureScript and
 Chas Emerick's refactored browser REPL
 [Austin](https://github.com/cemerick/austin) are both great ways to
 evaluate ClojureScript inside a running browser from a REPL.  But
