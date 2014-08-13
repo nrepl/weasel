@@ -11,4 +11,6 @@
                  [http-kit "2.1.18"]]
 
   :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.1.3"]]}}
-  :source-paths ["src/clj" "src/cljs"])
+  :source-paths ["src/clj" "src/cljs"]
+  :scm {:name "git"
+        :url "https://github.com/tomjakubowski/weasel"})
