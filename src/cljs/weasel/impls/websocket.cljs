@@ -40,7 +40,7 @@
   (close [this]
     (.close this ()))
 
-  event/EventType
+  event/IEventType
   (event-types [this]
     (into {}
       (map
