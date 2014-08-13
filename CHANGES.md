@@ -1,3 +1,9 @@
+# master
+
+## Changes
+
+* Requires Clojure 1.6.0 and ClojureScript 0.0-2311
+
 # 0.3.0
 
 ## Breaking changes
