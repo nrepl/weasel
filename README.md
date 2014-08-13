@@ -4,6 +4,10 @@ WebSocket-connected REPL environment for ClojureScript.
 
 [![Clojars Project](http://clojars.org/weasel/latest-version.svg)](http://clojars.org/weasel)
 
+## COMPATIBILITY NOTICE
+
+For ClojureScript `0.0-2311`, you will need Weasel version `0.4.0-SNAPSHOT`.
+
 ## why?
 
 The traditional browser-connected REPL shipped with ClojureScript and
