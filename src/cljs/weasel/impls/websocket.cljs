@@ -8,7 +8,7 @@
 
 (ns weasel.impls.websocket
   (:require [clojure.browser.net :as net :refer [IConnection connect transmit]]
-            [clojure.browser.event :as event :refer [event-types]]
+            [clojure.browser.event :as event :refer [event-types IEventType]]
             [goog.net.WebSocket :as gwebsocket]))
 
 (defprotocol IWebSocket
