@@ -39,11 +39,10 @@
 (defn repl-print
   [& args]
   (if-let [conn @ws-connection]
-    (net/transmit @ws-connection {:op :print :value (pr-str args)})))
+    (net/transmit @ws-connection {:op :print :value (apply pr-str args)})))
 
 (defn console-print [& args]
-  (fn [& args]
-    (.apply (.-log js/console) js/console (into-array args))))
+  (.apply (.-log js/console) js/console (into-array args)))
 
 (def print-fns
   {:repl repl-print
@@ -57,10 +56,9 @@
                       :or {verbose true, print :repl}}]
   (let [repl-connection (ws/websocket-connection)]
     (swap! ws-connection (constantly repl-connection))
-
     (event/listen repl-connection :opened
       (fn [evt]
-        (set-print-fn! (get print-fns print))
+        (set-print-fn! (if (fn? print) print (get print-fns print)))
         (net/transmit repl-connection (pr-str {:op :ready}))
         (when verbose (.info js/console "Opened Websocket REPL connection"))
         (when (fn? on-open) (on-open))))
