@@ -38,9 +38,7 @@
 (defn repl-env
   "Returns a JS environment to pass to repl or piggieback"
   [& {:as opts}]
-  ;; cljs master default-compiler-env takes an options argument to
-  ;; which we should pass opts. change this for the next cljs release
-  (let [compiler-env (env/default-compiler-env)
+  (let [compiler-env (env/default-compiler-env opts)
         opts (merge (WebsocketEnv.)
                {::env/compiler compiler-env
                 :ip "127.0.0.1"
@@ -52,7 +50,7 @@
     (env/with-compiler-env (::env/compiler opts)
       (reset! preloaded-libs
         (set/union
-          (transitive-deps ["weasel.repl"])
+          (transitive-deps ["weasel.repl"] {:output-dir "target/weasel/repl"})
           (into #{} (map str (:preloaded-libs opts)))))
       (reset! loaded-libs @preloaded-libs))
     opts))
@@ -121,10 +119,10 @@
 (defn- transitive-deps
   "Returns a flattened set of all transitive namespaces required and
   provided by the given sequence of namespaces"
-  [nses]
+  [nses opts]
   (let [collect-deps #(flatten (mapcat (juxt :provides :requires) %))
-        cljs-deps (->> nses (cljsc/cljs-dependencies {}) collect-deps)
-        js-deps (->> cljs-deps (cljsc/js-dependencies {}) collect-deps)]
+        cljs-deps (->> nses (cljsc/cljs-dependencies opts) collect-deps)
+        js-deps (->> cljs-deps (cljsc/js-dependencies opts) collect-deps)]
     (disj (into #{} (concat js-deps cljs-deps)) nil)))
 
 (defn- send-for-eval! [js]
