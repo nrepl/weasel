@@ -74,12 +74,7 @@
 (defmethod process-message
   :ready
   [renv _]
-  (reset! loaded-libs @preloaded-libs)
-  (env/with-compiler-env (::env/compiler renv)
-    (binding [*out* (or @repl-out *out*)]
-      (send-for-eval! (cljsc/compile-form-seq
-                        '[(ns cljs.user)
-                          (set-print-fn! weasel.repl/repl-print)])))))
+  (reset! loaded-libs @preloaded-libs))
 
 (defn- websocket-setup-env
   [this]
