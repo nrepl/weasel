@@ -12,3 +12,4 @@ pom.xml
 /checkouts
 .nrepl-port
 /pom.xml.asc
+/weasel-example/weasel_example.js
