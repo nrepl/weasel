@@ -6,8 +6,9 @@ WebSocket-connected REPL environment for ClojureScript.
 
 ## COMPATIBILITY NOTICE
 
-For ClojureScript versions `0.0-2311` or `0.0-2371`, you will need Weasel version
-`0.4.0`.  Otherwise, use `0.3.0`.
+For ClojureScript versions `0.0-2311` or `0.0-2371`, you will need Weasel
+version `0.4.1`.  Otherwise, use `0.3.0`.  (`0.4.0` was a broken release the
+author managed to botch).
 
 ## why?
 
@@ -34,7 +35,7 @@ Once you've set that up, add weasel as a dependency (available from
 [Clojars](http://clojars.org)) to your Leiningen `project.clj`:
 
 ```clojure
-[weasel "0.4.0"]
+[weasel "0.4.1"]
 ```
 
 Start up `lein repl` and piggieback the Weasel REPL environment onto
