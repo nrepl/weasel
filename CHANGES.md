@@ -1,8 +1,8 @@
-# master
+# 0.4.0
 
 ## Breaking changes
 
-* Requires Clojure 1.6.0 and ClojureScript 0.0-2711
+* Requires Clojure 1.6.0 and ClojureScript 0.0-2311 or newer.
 * Weasel no longer invokes the compiler in a way that creates files in `out/`.
   Any files the compiler generates for Weasel are now in `target/`.
 
