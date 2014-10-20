@@ -6,7 +6,7 @@ WebSocket-connected REPL environment for ClojureScript.
 
 ## COMPATIBILITY NOTICE
 
-For ClojureScript `0.0-2311`, you will need Weasel version `0.4.0-SNAPSHOT`.
+For ClojureScript `0.0-2371`, you will need Weasel version `0.4.0-SNAPSHOT`.
 
 ## why?
 
@@ -65,20 +65,20 @@ and connect to the REPL.
 You may optionally specify the following:
 ```clojure
 :verbose ; boolean, defaults to true
-:print ; :repl to print only to the repl, 
+:print ; :repl to print only to the repl,
        ; :console to print only to the console
        ; #{:repl :console} to print to both
        ; or any variadic function to handle printing differently.
-       ; defaults to :repl 
+       ; defaults to :repl
 :on-open, :on-error, :on-close ; fns for handling websocket lifecycle events.
                                ; default for all is nil
 ```
 
 Connecting with options:
 ```clojure
-(ws-repl/connect "ws://localhost:9001" 
-   :verbose true 
-   :print #{:repl :console} 
+(ws-repl/connect "ws://localhost:9001"
+   :verbose true
+   :print #{:repl :console}
    :on-error #(print "Error! " %))
 ```
 
