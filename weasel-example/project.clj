@@ -6,8 +6,8 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2311"]
-                 [weasel "0.3.0"]]
+                 [org.clojure/clojurescript "0.0-2371"]
+                 [weasel "0.4.0-SNAPSHOT"]]
 
   :source-paths ["src"]
   :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.1.3"]]
