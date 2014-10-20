@@ -1,8 +1,15 @@
 # master
 
-## Changes
+## Breaking changes
 
-* Requires Clojure 1.6.0 and ClojureScript 0.0-2311
+* Requires Clojure 1.6.0 and ClojureScript 0.0-2711
+* Weasel no longer invokes the compiler in a way that creates files in `out/`.
+  Any files the compiler generates for Weasel are now in `target/`.
+
+## Enhancements
+
+* The `repl-env` function now passes options to the compiler.
+* Adds a `:print` option to `repl/connect` which controls where prints are sent.
 
 # 0.3.0
 
