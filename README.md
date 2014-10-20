@@ -6,7 +6,8 @@ WebSocket-connected REPL environment for ClojureScript.
 
 ## COMPATIBILITY NOTICE
 
-For ClojureScript `0.0-2371`, you will need Weasel version `0.4.0-SNAPSHOT`.
+For ClojureScript versions `0.0-2311` or `0.0-2371`, you will need Weasel version
+`0.4.0-SNAPSHOT`.
 
 ## why?
 
