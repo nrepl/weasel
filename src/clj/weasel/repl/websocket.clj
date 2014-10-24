@@ -78,17 +78,17 @@
   (reset! loaded-libs @preloaded-libs))
 
 (defmacro cljs-version []
-  "Expands to a form that returns the current ClojureScript version, working in both
-  2311 and 2371."
+  "Expands to a form that returns the current ClojureScript version, working in
+  2311, 2342, and 2371."
   (if (find-ns 'cljs.util)
     `(do (require 'cljs.util) (cljs.util/clojurescript-version))
     `(do (require 'cljs.compiler) (cljs.compiler/clojurescript-version))))
 
 (defmacro with-core-cljs-hack [form]
   "A temporary hack to work around the API breakage in 2371 so as to not break
-  those on 2311 who are using 0.4.0-SNAPSHOT."
+  those on 2311 or 2342 who are using 0.4.2-SNAPSHOT."
   (let [[_ build] (clojure.string/split (cljs-version) #"-")]
-    (if (= build "2311")
+    (if (or (= build "2311") (= build "2342"))
       `(do
          (cmp/with-core-cljs)
          ~form)
