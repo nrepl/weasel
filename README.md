@@ -34,7 +34,7 @@ Once you've set that up, add weasel as a dependency (available from
 [Clojars](http://clojars.org)) to your Leiningen `project.clj`:
 
 ```clojure
-[weasel "0.4.1"]
+[weasel "0.4.2"]
 ```
 
 Start up `lein repl` and piggieback the Weasel REPL environment onto
