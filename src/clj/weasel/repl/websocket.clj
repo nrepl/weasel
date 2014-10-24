@@ -75,7 +75,9 @@
 (defmethod process-message
   :ready
   [renv _]
-  (reset! loaded-libs @preloaded-libs))
+  (reset! loaded-libs @preloaded-libs)
+  (env/with-compiler-env (::env/compiler renv)
+    (send-for-eval! (cljsc/compile-form-seq '[(ns cljs.user)]))))
 
 (defmacro cljs-version []
   "Expands to a form that returns the current ClojureScript version, working in
