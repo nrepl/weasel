@@ -1,4 +1,4 @@
-(defproject weasel "0.4.3-SNAPSHOT"
+(defproject weasel "0.5.0-SNAPSHOT"
   :description "websocket REPL environment for ClojureScript"
   :url "http://github.com/tomjakubowski/weasel"
   :license {:name "Unlicense"
@@ -6,8 +6,8 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2371" :scope "provided"]
-                 [org.clojure/google-closure-library "0.0-20140226-71326067" :scope "provided"]
+                 [org.clojure/clojurescript "0.0-2665" :scope "provided"]
+                 [org.clojure/google-closure-library "0.0-20140718-946a7d39" :scope "provided"]
                  [http-kit "2.1.18"]]
 
   :repositories [["releases" {:url "https://clojars.org/repo"
