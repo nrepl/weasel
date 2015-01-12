@@ -1,3 +1,10 @@
+# 0.5.0
+
+## Breaking changes
+
+* Requires ClojureScript 0.0-2665 or newer.
+* Requires Piggieback 0.1.4 or newer.
+
 # 0.4.0
 
 ## Breaking changes
