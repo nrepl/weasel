@@ -16,16 +16,18 @@ fixes a number of bugs related to the new ClojureScript REPL APIs.
 Weasel uses WebSockets to communicate between a ClojureScript REPL,
 often hosted on nREPL using [piggieback][].
 
-* A WebSocket transport is simple and avoids some of the thornier
-  issues of the `CrossPageChannel` transport by the standard
-  ClojureScript browser REPL and Austin. (see:
+* A WebSocket transport is simple and avoids some of the thornier bugs
+  caused by the `CrossPageChannel` transport, which is used in the
+  standard ClojureScript browser REPL and Austin. (see:
   [cemerick/austin#17][austin-17], [cemerick/austin#49][austin-47],
   [cemerick/austin#49][austin-49])
 * WebSocket APIs are available in unusual JavaScript environments like
   [Spotify Apps][spotify], [QML][qml], [WinJS][winjs], browser
-  extensions, Mac OS X Dashboard widgets, and so on.  Weasel allows
-  the ClojureScript developer to still enjoy the benefits of REPL
-  driven development in these exotic domains.
+  extensions, Mac OS X Dashboard widgets, and so on, where use of
+  `CrossPageChannel` may be unfeasible due to restrictions on or
+  unavailability of `<iframe>` elements.  Weasel allows the
+  ClojureScript developer to still enjoy the benefits of REPL driven
+  development in these exotic domains.
 
 ## Usage
 
