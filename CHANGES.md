@@ -1,3 +1,9 @@
+# 0.6.0
+
+## Breaking changes
+
+* Requires ClojureScript 0.0-2814 or newer.
+
 # 0.5.0
 
 ## Breaking changes
