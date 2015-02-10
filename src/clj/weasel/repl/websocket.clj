@@ -127,11 +127,3 @@
 
 (defn- send-for-eval! [js]
   (server/send! (pr-str {:op :eval-js, :code js})))
-
-(comment
-  (let [user-env '{:ns nil :locals {}}
-        cenv (atom {})]
-    (env/with-compiler-env cenv
-      (pprint (mapcat (juxt :provides :requires)
-                 (cljsc/cljs-dependencies {} ["weasel.repl"])))))
-  )
