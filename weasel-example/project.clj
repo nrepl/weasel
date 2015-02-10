@@ -6,11 +6,11 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2665"]
+                 [org.clojure/clojurescript "0.0-2814"]
                  [weasel "0.5.0-SNAPSHOT"]]
 
   :source-paths ["src"]
-  :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.1.5-SNAPSHOT"]]
+  :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.1.5"]]
                    :plugins [[lein-cljsbuild "1.0.3"]]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
                    :cljsbuild {:builds [{:id "weasel-example"
