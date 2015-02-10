@@ -1,4 +1,4 @@
-# weasel
+# Weasel
 
 WebSocket-connected REPL environment for ClojureScript.
 
@@ -11,29 +11,27 @@ ClojureScript version `0.0-2814` and Piggieback version `0.1.4`.  You
 may want to use Piggieback version `0.1.5` or newer, however, as it
 fixes a number of bugs related to the new ClojureScript REPL APIs.
 
-## why?
+## Why?
 
-The traditional browser-connected REPL shipped with ClojureScript and
-Chas Emerick's refactored browser REPL
-[Austin](https://github.com/cemerick/austin) are both great ways to
-evaluate ClojureScript inside a running browser from a REPL.  But
-since their communications go over an `<iframe>` transport via
-Closure's `goog.net.xpc` library, they can only be used in contexts
-that allow iframes and on pages which are served over the same
-protocol as the iframe (`http://`).  This means you can't use these
-REPLs to connect to a page served off the filesystem (`file://`), in a
-[Chrome extension](https://groups.google.com/forum/#!topic/clojure/lC8me2Gx_B4)
-(`chrome-extension://`), or as part of a
-[Spotify Application](https://developer.spotify.com/technologies/apps/)
-(`sp://`).  Weasel provides a REPL connection to these and similar
-environments.
+Weasel uses WebSockets to communicate between a ClojureScript REPL,
+often hosted on nREPL using [piggieback][].
 
-## usage
+* A WebSocket transport is simple and avoids some of the thornier
+  issues of the `CrossPageChannel` transport by the standard
+  ClojureScript browser REPL and Austin. (see:
+  [cemerick/austin#17][austin-17], [cemerick/austin#49][austin-47],
+  [cemerick/austin#49][austin-49])
+* WebSocket APIs are available in unusual JavaScript environments like
+  [Spotify Apps][spotify], [QML][qml], [WinJS][winjs], browser
+  extensions, Mac OS X Dashboard widgets, and so on.  Weasel allows
+  the ClojureScript developer to still enjoy the benefits of REPL
+  driven development in these exotic domains.
+
+## Usage
 
 Weasel is intended to be used with Chas Emerick's
-[piggieback](https://github.com/cemerick/piggieback) nREPL middleware.
-Once you've set that up, add weasel as a dependency (available from
-[Clojars](http://clojars.org)) to your Leiningen `project.clj`:
+[piggieback][piggieback] nREPL middleware.  Once you've set that up,
+add Weasel as a dependency to `project.clj`:
 
 ```clojure
 [weasel "0.5.0"]
@@ -55,14 +53,15 @@ Type `:cljs/quit` to stop the ClojureScript REPL
 nil
 ```
 
-In your project's ClojureScript, require the Weasel client namespace
-and connect to the REPL.
+In your project's ClojureScript source, require the Weasel client
+namespace and connect to the REPL.
 
 ```clojure
 (ns my.cljs.core
-  (:require [weasel.repl :as ws-repl]))
+  (:require [weasel.repl :as repl]))
 
-(ws-repl/connect "ws://localhost:9001")
+(when-not (repl/alive?)
+  (repl/connect "ws://localhost:9001"))
 ```
 
 You may optionally specify the following:
@@ -79,7 +78,7 @@ You may optionally specify the following:
 
 Connecting with options:
 ```clojure
-(ws-repl/connect "ws://localhost:9001"
+(repl/connect "ws://localhost:9001"
    :verbose true
    :print #{:repl :console}
    :on-error #(print "Error! " %))
@@ -104,18 +103,24 @@ java.io.IOException: No client connected to Websocket
 nil
 ```
 
-Moreover, only a single browser can be connected to the REPL at once.
-Attempts to connect from another browser will fail with an error
-message in the browser's console.  This may be addressed in future
-versions.
+Only a single client can be connected to the REPL at once.  Attempting
+to connect to an occupied REPL server will throw an exception in the
+client.
 
-## example
+## Example
 
 An example project is included in the `weasel-example` subdirectory of
 this project.
 
-## need help?
+## Need help?
 
 If you have any feedback or issues to report, feel free to open an
 issue on [GitHub](https://github.com/tomjakubowski/weasel).
-Otherwise, ping `dsrx` on freenode and I'll do my best to help you.
+
+[spotify]: <https://developer.spotify.com/technologies/apps/>
+[qml]: <http://doc.qt.io/qt-5/qml-qt-websockets-websocket.html>
+[winjs]: <https://msdn.microsoft.com/en-us/library/windows/apps/hh761442.aspx>
+[piggieback]: <https://github.com/cemerick/piggieback>
+[austin-17]: <https://github.com/cemerick/austin/issues/17>
+[austin-47]: <https://github.com/cemerick/austin/issues/47>
+[austin-49]: <https://github.com/cemerick/austin/issues/49>
