@@ -22,7 +22,7 @@ often hosted on nREPL using [piggieback][].
   [cemerick/austin#17][austin-17], [cemerick/austin#49][austin-47],
   [cemerick/austin#49][austin-49])
 * WebSocket APIs are available in unusual JavaScript environments like
-  [Spotify Apps][spotify], [QML][qml], [WinJS][winjs], browser
+  [JavaScriptCore][goby], [QML][qml], [WinJS][winjs], browser
   extensions, Mac OS X Dashboard widgets, and so on, where use of
   `CrossPageChannel` may be unfeasible due to restrictions on or
   unavailability of `<iframe>` elements.  Weasel allows the
@@ -119,7 +119,7 @@ this project.
 If you have any feedback or issues to report, feel free to open an
 issue on [GitHub](https://github.com/tomjakubowski/weasel).
 
-[spotify]: <https://developer.spotify.com/technologies/apps/>
+[goby]: <https://github.com/mfikes/goby>
 [qml]: <http://doc.qt.io/qt-5/qml-qt-websockets-websocket.html>
 [winjs]: <https://msdn.microsoft.com/en-us/library/windows/apps/hh761442.aspx>
 [piggieback]: <https://github.com/cemerick/piggieback>
