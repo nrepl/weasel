@@ -1,8 +1,12 @@
 # Weasel
 
-WebSocket-connected REPL environment for ClojureScript.
-
 [![Clojars Project](http://clojars.org/weasel/latest-version.svg)](http://clojars.org/weasel)
+
+Weasel uses WebSockets to communicate between a ClojureScript REPL,
+which is typically hosted on nREPL using [piggieback][], and an
+environment which can execute compiled ClojureScript, which can be a
+web browser or any JavaScript environment that supports the WebSocket
+APIs.
 
 ## COMPATIBILITY NOTICE
 
@@ -12,9 +16,6 @@ may want to use Piggieback version `0.1.5` or newer, however, as it
 fixes a number of bugs related to the new ClojureScript REPL APIs.
 
 ## Why?
-
-Weasel uses WebSockets to communicate between a ClojureScript REPL,
-often hosted on nREPL using [piggieback][].
 
 * A WebSocket transport is simple and avoids some of the thornier bugs
   caused by the `CrossPageChannel` transport, which is used in the
