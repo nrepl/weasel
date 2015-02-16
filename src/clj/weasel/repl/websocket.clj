@@ -3,16 +3,8 @@
   (:require [cljs.repl]
             [cljs.closure :as cljsc]
             [cljs.compiler :as cmp]
-            [cljs.js-deps :as js-deps]
             [cljs.env :as env]
-            [clojure.set :as set]
-            [clojure.string]
             [weasel.repl.server :as server]))
-
-(declare send-for-eval!)
-
-(def loaded-libs (atom #{}))
-(def preloaded-libs (atom #{}))
 
 (def ^:private repl-out
   "stores the value of *out* when the server is started"
@@ -23,6 +15,7 @@
   (atom nil))
 
 (declare
+  send-for-eval!
   websocket-setup-env
   websocket-eval
   load-javascript
@@ -31,7 +24,7 @@
 
 (defrecord WebsocketEnv []
   cljs.repl/IJavaScriptEnv
-  (-setup [this _] (websocket-setup-env this))
+  (-setup [this opts] (websocket-setup-env this opts))
   (-evaluate [_ _ _ js] (websocket-eval js))
   (-load [this ns url] (load-javascript this ns url))
   (-tear-down [_] (websocket-tear-down-env)))
@@ -39,25 +32,10 @@
 (defn repl-env
   "Returns a JS environment to pass to repl or piggieback"
   [& {:as opts}]
-  (let [ups-deps (cljsc/get-upstream-deps (java.lang.ClassLoader/getSystemClassLoader))
-        opts (merge {:ups-libs (:libs ups-deps)
-                     :ups-foreign-libs (:foreign-libs ups-deps)}
-                    opts)
-        compiler-env (env/default-compiler-env opts)
-        opts (merge (WebsocketEnv.)
-               {::env/compiler compiler-env
-                :ip "127.0.0.1"
-                :port 9001
-                :preloaded-libs []
-                :src "src/"}
+  (let [opts (merge (WebsocketEnv.)
+               {:ip "127.0.0.1"
+                :port 9001}
                opts)]
-    (swap! compiler-env assoc :js-dependency-index (js-deps/js-dependency-index opts))
-    (env/with-compiler-env (::env/compiler opts)
-      (reset! preloaded-libs
-        (set/union
-          (transitive-deps ["weasel.repl"] {:output-dir "target/weasel/repl"})
-          (into #{} (map str (:preloaded-libs opts)))))
-      (reset! loaded-libs @preloaded-libs))
     opts))
 
 (defmulti ^:private process-message (fn [_ msg] (:op msg)))
@@ -78,27 +56,23 @@
 
 (defmethod process-message
   :ready
-  [renv _]
-  (reset! loaded-libs @preloaded-libs)
-  (env/with-compiler-env (::env/compiler renv)
+  [repl-env _]
+  (env/with-compiler-env (::env/compiler repl-env)
     (send-for-eval! (cljsc/compile-form-seq '[(ns cljs.user)]))))
 
 (defn- websocket-setup-env
-  [this]
+  [this opts]
   (reset! repl-out *out*)
-  (require 'cljs.repl.reflect)
-  (cljs.repl/analyze-source (:src this))
   (server/start
     (fn [data] (process-message this (read-string data)))
     :ip (:ip this)
     :port (:port this))
   (let [{:keys [ip port]} this]
-    (println (str "<< started Weasel server on ws://" ip ":" port " >>"))))
+    (println (str "<< Started Weasel server on ws://" ip ":" port " >>"))))
 
 (defn- websocket-tear-down-env
   []
   (reset! repl-out nil)
-  (reset! loaded-libs #{})
   (server/stop)
   (println "<< stopped server >>"))
 
@@ -111,19 +85,9 @@
     ret))
 
 (defn- load-javascript
-  [_ nses url]
-  (when-let [not-loaded (seq (remove @loaded-libs nses))]
-    (websocket-eval (slurp url))
-    (swap! loaded-libs #(apply conj % not-loaded))))
-
-(defn- transitive-deps
-  "Returns a flattened set of all transitive namespaces required and
-  provided by the given sequence of namespaces"
-  [nses opts]
-  (let [collect-deps #(flatten (mapcat (juxt :provides :requires) %))
-        cljs-deps (->> nses (cljsc/cljs-dependencies opts) collect-deps)
-        js-deps (->> cljs-deps (cljsc/js-dependencies opts) collect-deps)]
-    (disj (into #{} (concat js-deps cljs-deps)) nil)))
+  [_ provides _]
+  (websocket-eval
+    (str "goog.require('" (cmp/munge (first provides)) "')")))
 
 (defn- send-for-eval! [js]
   (server/send! (pr-str {:op :eval-js, :code js})))
