@@ -33,12 +33,12 @@
   "Returns a JS environment to pass to repl or piggieback"
   [& {:as opts}]
   (let [ups-deps (cljsc/get-upstream-deps (java.lang.ClassLoader/getSystemClassLoader))
-        opts (merge {::env/compiler (env/default-compiler-env opts)
-                     :ups-libs (:libs ups-deps)
+        opts (merge {:ups-libs (:libs ups-deps)
                      :ups-foreign-libs (:foreign-libs ups-deps)}
                opts)
         opts (merge (WebsocketEnv.)
-               {:ip "127.0.0.1"
+               {::env/compiler (env/default-compiler-env opts)
+                :ip "127.0.0.1"
                 :port 9001}
                opts)]
     opts))
