@@ -9,6 +9,12 @@
                  [org.clojure/clojurescript "0.0-2814"]
                  [weasel "0.6.0-SNAPSHOT"]]
 
+  :repl-options {:welcome (println "Run (start-weasel) to start a Weasel REPL.")
+                 :init (do
+                         (require 'weasel.repl.websocket)
+                         (defn start-weasel
+                           [& opts] (cemerick.piggieback/cljs-repl
+                                      :repl-env (apply weasel.repl.websocket/repl-env opts))))}
   :source-paths ["src"]
   :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.1.5"]]
                    :plugins [[lein-cljsbuild "1.0.4"]]
