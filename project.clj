@@ -6,7 +6,7 @@
             :distribution :repo}
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2814" :scope "provided"]
+                 [org.clojure/clojurescript "0.0-2850"]
                  [org.clojure/google-closure-library "0.0-20140718-946a7d39" :scope "provided"]
                  [http-kit "2.1.18"]]
 
