@@ -10,10 +10,10 @@ APIs.
 
 ## COMPATIBILITY NOTICE
 
-Starting with Weasel `0.6.0-SNAPSHOT`, you will need at least
-ClojureScript version `0.0-2814` and Piggieback version `0.1.4`.  You
-may want to use Piggieback version `0.1.5` or newer, however, as it
-fixes a number of bugs related to the new ClojureScript REPL APIs.
+Starting with Weasel `0.6.0`, you will need at least ClojureScript
+version `0.0-2850` and Piggieback version `0.1.4`.  You may want to
+use Piggieback version `0.1.5` or newer, however, as it fixes a number
+of bugs related to the new ClojureScript REPL APIs.
 
 ## Why?
 
@@ -37,7 +37,7 @@ Weasel is intended to be used with Chas Emerick's
 add Weasel as a dependency to `project.clj`:
 
 ```clojure
-[weasel "0.5.0"]
+[weasel "0.6.0"]
 ```
 
 Start up `lein repl` and piggieback the Weasel REPL environment onto
