@@ -120,6 +120,12 @@ this project.
 If you have any feedback or issues to report, feel free to open an
 issue on [GitHub](https://github.com/tomjakubowski/weasel).
 
+## A weasel riding a woodpecker
+
+A little treat for reading the whole README!
+
+![](http://i.imgur.com/XIaZZ2k.jpg)
+
 [goby]: <https://github.com/mfikes/goby>
 [qml]: <http://doc.qt.io/qt-5/qml-qt-websockets-websocket.html>
 [winjs]: <https://msdn.microsoft.com/en-us/library/windows/apps/hh761442.aspx>
