@@ -82,8 +82,12 @@
 
     ;; Monkey-patch goog.provide if running under optimizations :none - David
     (when-not js/COMPILED
+      (set! (.-provide__ js/goog) js/goog.provide)
+      (set! (.-isProvided___ js/goog) js/goog.isProvided_)
       (set! (.-provide js/goog)
         (fn [name]
-          (.constructNamespace_ js/goog name))))
+          (set! (.-isProvided_ js/goog) (fn [name] false))
+          (.provide__ js/goog name)
+          (set! (.-isProvided_ js/goog) js/goog.isProvided___))))
 
     (net/connect repl-connection repl-server-url)))
