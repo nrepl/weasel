@@ -84,6 +84,6 @@
     (when-not js/COMPILED
       (set! (.-provide js/goog)
         (fn [name]
-          (.constructNamespace js/goog name))))
+          (.constructNamespace_ js/goog name))))
 
     (net/connect repl-connection repl-server-url)))
