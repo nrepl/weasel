@@ -80,27 +80,10 @@
         (when verbose (.error js/console "WebSocket error" evt))
         (when (fn? on-error) (on-error evt))))
 
-    ;; Monkey-patch goog.require if running under optimizations :none - David
-    ;; This is copied from Clojurescript (cljs.browser.repl/connect).
+    ;; Monkey-patch goog.provide if running under optimizations :none - David
     (when-not js/COMPILED
-      (set! *loaded-libs*
-        (let [gntp (.. js/goog -dependencies_ -nameToPath)]
-          (into #{}
-            (filter
-              (fn [name]
-                (aget (.. js/goog -dependencies_ -visited) (aget gntp name)))
-              (js-keys gntp)))))
-      (set! (.-isProvided_ js/goog) (fn [_] false))
-      (set! (.-require js/goog)
-        (fn [name reload]
-          (when (or (not (contains? *loaded-libs* name)) reload)
-            (set! *loaded-libs* (conj (or *loaded-libs* #{}) name))
-            (.appendChild js/document.body
-              (let [script (.createElement js/document "script")]
-                (set! (.-type script) "text/javascript")
-                (set! (.-src script)
-                  (str js/goog.basePath
-                    (aget (.. js/goog -dependencies_ -nameToPath) name)))
-                script))))))
+      (set! (.-provide js/goog)
+        (fn [name]
+          (.constructNamespace js/goog name))))
 
     (net/connect repl-connection repl-server-url)))
