@@ -88,6 +88,14 @@
         (fn [name]
           (set! (.-isProvided_ js/goog) (fn [name] false))
           (.provide__ js/goog name)
-          (set! (.-isProvided_ js/goog) js/goog.isProvided___))))
+          (set! (.-isProvided_ js/goog) js/goog.isProvided___)))
+      (set! (.-writeScriptTag_ js/goog)
+        (fn [src opt_sourceText]
+          (let [doc js/goog.global.document]
+            (if (nil? opt_sourceText)
+              (.write doc
+                (str "<script type=\"text/javascript\" src=\"" src "\"></script>"))
+              (.write doc
+                (str "<script type=\"text/javascript\">" opt_sourceText "</script>")))))))
 
     (net/connect repl-connection repl-server-url)))
