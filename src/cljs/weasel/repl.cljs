@@ -1,5 +1,6 @@
 (ns weasel.repl
-  (:require [clojure.browser.event :as event :refer [event-types]]
+  (:require [goog.dom :as gdom]
+            [clojure.browser.event :as event :refer [event-types]]
             [clojure.browser.net :as net]
             [cljs.reader :as reader :refer [read-string]]
             [weasel.impls.websocket :as ws]))
