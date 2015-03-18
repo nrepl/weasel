@@ -2,6 +2,7 @@
   (:require [goog.dom :as gdom]
             [clojure.browser.event :as event :refer [event-types]]
             [clojure.browser.net :as net]
+            [clojure.browser.repl :as brepl]
             [cljs.reader :as reader :refer [read-string]]
             [weasel.impls.websocket :as ws]))
 
@@ -81,32 +82,7 @@
         (when verbose (.error js/console "WebSocket error" evt))
         (when (fn? on-error) (on-error evt))))
 
-    ;; Monkey-patch goog.provide if running under optimizations :none - David
-    (when-not js/COMPILED
-      (set! (.-require__ js/goog) js/goog.require)
-      ;; suppress useless Google Closure error about duplicate provides
-      (set! (.-isProvided_ js/goog) (fn [name] false))
-      (set! (.-writeScriptTag_ js/goog)
-        (fn [src opt_sourceText]
-          (.appendChild js/document.body
-            (as-> (.createElement js/document "script") script
-              (doto script (aset "type" "text/javascript"))
-              (if (nil? opt_sourceText)
-                (doto script (aset "src" src))
-                (doto script (gdom/setTextContext opt_sourceText)))))))
-      (set! (.-require js/goog)
-        (fn [src reload]
-          (when (= reload "reload-all")
-            (set! (.-cljsReloadAll_ js/goog) true))
-          (let [reload? (or reload (.-cljsReloadAll__ js/goog))]
-            (when reload?
-              (let [path (aget js/goog.dependencies_.nameToPath src)]
-                (js-delete js/goog.dependencies_.visited path)
-                (js-delete js/goog.dependencies_.written
-                  (str js/goog.basePath path))))
-            (let [ret (.require__ js/goog src)]
-              (when (= reload "reload-all")
-                (set! (.-cljsReloadAll_ js/goog) false))
-              ret)))))
+    ;; reusable bootstrap
+    (brepl/bootstrap)
 
     (net/connect repl-connection repl-server-url)))
