@@ -120,7 +120,7 @@ this project.
 If you have any feedback or issues to report, feel free to open an
 issue on [GitHub](https://github.com/tomjakubowski/weasel).
 
-## A weasel riding a woodpecker
+## A weasel "piggiebacking" on a woodpecker
 
 A little treat for reading the whole README!
 
