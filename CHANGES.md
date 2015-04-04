@@ -1,4 +1,12 @@
-# 0.6.0-SNAPSHOT
+# 0.7.0-SNAPSHOT
+
+## Enhancements
+
+* The REPL's evaluation mechanism has been adjusted so that an eval
+  without a client connected simply blocks until a client connects,
+  rather than throwing an exception.
+
+# 0.6.0
 
 ## Breaking changes
 

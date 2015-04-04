@@ -3,27 +3,30 @@
   (:import [java.io IOException]))
 
 (defonce state (atom {:server nil
-                      :channel nil
+                      :channel nil      ; when the server starts, a
+                                        ; promise that derefs to a
+                                        ; channel when a client
+                                        ; connects
                       :response-fn nil}))
 
 (defn handler [request]
   (if-not (:websocket? request)
     {:status 200 :body "Please connect with a websocket!"}
     (with-channel request channel
-      (if-not (nil? (:channel @state))
+      (if (realized? (:channel @state))  ; seems racy
         (do
           (http/send! channel (pr-str {:op :error, :type :occupied}))
           (http/close channel))
         (do
-          (swap! state assoc :channel channel)
+          (deliver (:channel @state) channel)
           (on-close channel (fn [_] (swap! state dissoc :channel)))
           (on-receive channel (:response-fn @state)))))))
 
 (defn send!
   [msg]
   (if-let [channel (:channel @state)]
-    (http/send! channel msg)
-    (throw (IOException. "No client connected to Websocket"))))
+    (http/send! (deref channel) msg)
+    (throw (IOException. "WebSocket server not started!"))))
 
 (defn channel []
   (:channel @state))
@@ -33,13 +36,16 @@
   {:pre [(ifn? f)]}
   (swap! state
     assoc :server (http/run-server #'handler opts)
+          :channel (promise)
           :response-fn f))
 
 (defn stop []
   (let [stop-server (:server @state)]
     (when-not (nil? stop-server)
       (stop-server)
-      (reset! state {})
+      (reset! state {:server nil
+                     :channel nil
+                     :response-fn nil})
       @state)))
 
 (defn restart []
