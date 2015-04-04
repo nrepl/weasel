@@ -13,13 +13,13 @@
   (if-not (:websocket? request)
     {:status 200 :body "Please connect with a websocket!"}
     (with-channel request channel
-      (if (realized? (:channel @state))  ; seems racy
+      (if (realized? (:channel @state))
         (do
           (http/send! channel (pr-str {:op :error, :type :occupied}))
           (http/close channel))
         (do
           (deliver (:channel @state) channel)
-          (on-close channel (fn [_] (swap! state dissoc :channel)))
+          (on-close channel (fn [_] (swap! state assoc :channel (promise))))
           (on-receive channel (:response-fn @state)))))))
 
 (defn send!
@@ -47,6 +47,10 @@
                      :channel nil
                      :response-fn nil})
       @state)))
+
+(defn wait-for-client []
+  (deref (:channel @state))
+  nil)
 
 (defn restart []
   (stop)

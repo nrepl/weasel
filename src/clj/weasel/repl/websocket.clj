@@ -55,9 +55,7 @@
 
 (defmethod process-message
   :ready
-  [repl-env _]
-  (env/with-compiler-env (::env/compiler repl-env)
-    (send-for-eval! (cljsc/compile-form-seq '[(ns cljs.user)]))))
+  [_ _])
 
 (defn- websocket-setup-env
   [this opts]
@@ -67,7 +65,11 @@
     :ip (:ip this)
     :port (:port this))
   (let [{:keys [ip port]} this]
-    (println (str "<< Started Weasel server on ws://" ip ":" port " >>"))))
+    (println (str "<< started Weasel server on ws://" ip ":" port " >>"))
+    (print "<< waiting for client to connect ... ")
+    (flush)
+    (server/wait-for-client)
+    (println " connected! >>")))
 
 (defn- websocket-tear-down-env
   []
