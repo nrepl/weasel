@@ -55,6 +55,15 @@ user> (cemerick.piggieback/cljs-repl
 Type `:cljs/quit` to stop the ClojureScript REPL
 nil
 ```
++**Note for Piggieback >= 0.2.0:**
+> The function signature for `piggieback/cljs-repl` changed in version 
+> `0.2.0` to accept a repl-env as the first argument, instead of as a
+> keyword argument:
+>
+> ```cljs
+> user> (cemerick.piggieback/cljs-repl
+>        (weasel.repl.websocket/repl-env :ip "0.0.0.0" :port 9001))
+> ```
 
 In your project's ClojureScript source, require the Weasel client
 namespace and connect to the REPL.
