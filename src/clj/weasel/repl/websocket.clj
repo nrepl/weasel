@@ -64,10 +64,12 @@
     (fn [data] (process-message this (read-string data)))
     :ip (:ip this)
     :port (:port this))
-  (let [{:keys [ip port]} this]
-    (println (str "<< started Weasel server on ws://" ip ":" port " >>"))
+  (let [{:keys [ip pre-connect]} this]
+    (let [port (-> @server/state :server meta :local-port)]
+      (println (str "<< started Weasel server on ws://" ip ":" port " >>")))
     (print "<< waiting for client to connect ... ")
     (flush)
+    (when pre-connect (pre-connect))
     (server/wait-for-client)
     (println " connected! >>")))
 
