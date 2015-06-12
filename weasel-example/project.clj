@@ -5,8 +5,8 @@
             :url "http://unlicense.org/UNLICENSE"
             :distribution :repo}
 
-  :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2850"]
+  :dependencies [[org.clojure/clojure "1.7.0-RC1"]
+                 [org.clojure/clojurescript "0.0-3308"]
                  [weasel "0.7.0-SNAPSHOT"]]
 
   :repl-options {:welcome (println "Run (start-weasel) to start a Weasel REPL.")

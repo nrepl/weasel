@@ -5,8 +5,8 @@
             :url "http://unlicense.org/UNLICENSE"
             :distribution :repo}
 
-  :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2850"]
+  :dependencies [[org.clojure/clojure "1.7.0-RC1"]
+                 [org.clojure/clojurescript "0.0-3308"]
                  [org.clojure/google-closure-library "0.0-20140718-946a7d39" :scope "provided"]
                  [http-kit "2.1.18"]]
 
