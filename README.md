@@ -42,8 +42,6 @@ user> (require 'weasel.repl.websocket)
 nil
 user> (cemerick.piggieback/cljs-repl
         (weasel.repl.websocket/repl-env :ip "0.0.0.0" :port 9001))
-
-user> (start-weasel)
 << started Weasel server on ws://127.0.0.1:9001 >>
 << waiting for client to connect ...
 ```
