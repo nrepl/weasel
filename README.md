@@ -8,13 +8,6 @@ environment which can execute compiled ClojureScript, which can be a
 web browser or any JavaScript environment that supports the WebSocket
 APIs.
 
-## COMPATIBILITY NOTICE
-
-Starting with Weasel `0.6.0`, you will need at least ClojureScript
-version `0.0-2850` and Piggieback version `0.1.4`.  You may want to
-use Piggieback version `0.1.5` or newer, however, as it fixes a number
-of bugs related to the new ClojureScript REPL APIs.
-
 ## Why?
 
 * A WebSocket transport is simple and avoids some of the thornier bugs
@@ -37,7 +30,7 @@ Weasel is intended to be used with Chas Emerick's
 add Weasel as a dependency to `project.clj`:
 
 ```clojure
-[weasel "0.6.0"]
+[weasel "0.7.0"]
 ```
 
 Start up `lein repl` and piggieback the Weasel REPL environment onto
@@ -48,22 +41,14 @@ an address to bind to (defaults to "127.0.0.1").
 user> (require 'weasel.repl.websocket)
 nil
 user> (cemerick.piggieback/cljs-repl
-        :repl-env (weasel.repl.websocket/repl-env
-                   :ip "0.0.0.0" :port 9001))
+        (weasel.repl.websocket/repl-env :ip "0.0.0.0" :port 9001))
 
-<< started Weasel server on ws://0.0.0.0:9001 >>
-Type `:cljs/quit` to stop the ClojureScript REPL
-nil
+user> (start-weasel)
+<< started Weasel server on ws://127.0.0.1:9001 >>
+<< waiting for client to connect ...
 ```
-+**Note for Piggieback >= 0.2.0:**
-> The function signature for `piggieback/cljs-repl` changed in version 
-> `0.2.0` to accept a repl-env as the first argument, instead of as a
-> keyword argument:
->
-> ```cljs
-> user> (cemerick.piggieback/cljs-repl
->        (weasel.repl.websocket/repl-env :ip "0.0.0.0" :port 9001))
-> ```
+
+Weasel will block the REPL, waiting for a client to connect.
 
 In your project's ClojureScript source, require the Weasel client
 namespace and connect to the REPL.
@@ -96,8 +81,8 @@ Connecting with options:
    :on-error #(print "Error! " %))
 ```
 
-Load the page in your WebSocket-enabled environment (probably a
-browser) and start evaluating ClojureScript at the REPL:
+Load the script in your WebSocket-enabled environment (probably a page
+in a web browser) and start evaluating ClojureScript at the REPL:
 
 ```clojure
 cljs.user> (= (js/Number. 34) (js/Number. 34))
