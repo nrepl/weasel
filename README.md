@@ -30,7 +30,7 @@ Weasel is intended to be used with Chas Emerick's
 add Weasel as a dependency to `project.clj`:
 
 ```clojure
-[weasel "0.7.0"]
+[weasel "0.7.0" :exclusions [org.clojure/clojurescript]]
 ```
 
 Start up `lein repl` and piggieback the Weasel REPL environment onto
