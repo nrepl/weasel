@@ -14,8 +14,8 @@ Start a `lein repl` and enter this:
 
 ```clojure
 (require 'weasel.repl.websocket)
-(cemerick.piggieback/cljs-repl :repl-env (weasel.repl.websocket/repl-env))
-```
+(cemerick.piggieback/cljs-repl 
+    (weasel.repl.websocket/repl-env :ip "0.0.0.0" :port 9001))```
 
 Once that executes, open `index.html` in your browser and *voila*, your REPL is connected
 to the browser.
