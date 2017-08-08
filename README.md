@@ -13,7 +13,7 @@ APIs.
 * A WebSocket transport is simple and avoids some of the thornier bugs
   caused by the `CrossPageChannel` transport, which is used in the
   standard ClojureScript browser REPL and Austin. (see:
-  [cemerick/austin#17][austin-17], [cemerick/austin#49][austin-47],
+  [cemerick/austin#17][austin-17], [cemerick/austin#47][austin-47],
   [cemerick/austin#49][austin-49])
 * WebSocket APIs are available in unusual JavaScript environments like
   [JavaScriptCore][goby], [QML][qml], [WinJS][winjs], browser
