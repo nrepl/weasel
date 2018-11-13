@@ -3,7 +3,7 @@
 [![Clojars Project](http://clojars.org/weasel/latest-version.svg)](http://clojars.org/weasel)
 
 Weasel uses WebSockets to communicate between a ClojureScript REPL,
-which is typically hosted on nREPL using [piggieback][], and an
+which is typically hosted on [nREPL][] using [piggieback][], and an
 environment which can execute compiled ClojureScript, which can be a
 web browser or any JavaScript environment that supports the WebSocket
 APIs.
@@ -25,8 +25,8 @@ APIs.
 
 ## Usage
 
-Weasel is intended to be used with Chas Emerick's
-[piggieback][piggieback] nREPL middleware.  Once you've set that up,
+Weasel is intended to be used with nREPL's
+[piggieback][] middleware.  Once you've set that up,
 add Weasel as a dependency to `project.clj`:
 
 ```clojure
@@ -40,7 +40,7 @@ an address to bind to (defaults to "127.0.0.1").
 ```clojure
 user> (require 'weasel.repl.websocket)
 nil
-user> (cemerick.piggieback/cljs-repl
+user> (cider.piggieback/cljs-repl
         (weasel.repl.websocket/repl-env :ip "0.0.0.0" :port 9001))
 << started Weasel server on ws://127.0.0.1:9001 >>
 << waiting for client to connect ...
@@ -121,7 +121,8 @@ A little treat for reading the whole README!
 [goby]: <https://github.com/mfikes/goby>
 [qml]: <http://doc.qt.io/qt-5/qml-qt-websockets-websocket.html>
 [winjs]: <https://msdn.microsoft.com/en-us/library/windows/apps/hh761442.aspx>
-[piggieback]: <https://github.com/cemerick/piggieback>
+[nREPL]: <https://github.com/nrepl/nrepl>
+[piggieback]: <https://github.com/nrepl/piggieback>
 [austin-17]: <https://github.com/cemerick/austin/issues/17>
 [austin-47]: <https://github.com/cemerick/austin/issues/47>
 [austin-49]: <https://github.com/cemerick/austin/issues/49>
