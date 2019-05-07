@@ -13,13 +13,12 @@
                  :init (do
                          (require 'weasel.repl.websocket)
                          (defn start-weasel [& opts]
-                           (cemerick.piggieback/cljs-repl
+                           (cider.piggieback/cljs-repl
                              (apply weasel.repl.websocket/repl-env opts))))}
   :source-paths ["src"]
-  :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.2.1"]
-                                  [org.clojure/tools.nrepl "0.2.10"]]
+  :profiles {:dev {:dependencies [[cider/piggieback "0.4.0"]]
                    :plugins [[lein-cljsbuild "1.0.6"]]
-                   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+                   :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
                    :cljsbuild {:builds [{:id "weasel-example"
                                          :source-paths ["src"]
                                          :compiler {:output-to "weasel_example.js"
