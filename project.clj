@@ -4,6 +4,8 @@
   :license {:name "Unlicense"
             :url "http://unlicense.org/UNLICENSE"
             :distribution :repo}
+  :scm {:name "git"
+        :url "https://github.com/nrepl/weasel"}
 
   :dependencies [[org.clojure/clojure "1.7.0-RC1"]
                  [org.clojure/clojurescript "0.0-3308"]
@@ -18,6 +20,4 @@
                               [:email "tom@crystae.net"]
                               [:url "https://github.com/tomjakubowski"]]]
   :profiles {:dev {:dependencies [[cider/piggieback "0.4.0"]]}}
-  :source-paths ["src/clj" "src/cljs"]
-  :scm {:name "git"
-        :url "https://github.com/nrepl/weasel"})
+  :source-paths ["src/clj" "src/cljs"])
