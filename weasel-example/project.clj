@@ -1,6 +1,6 @@
 (defproject weasel-example "NOT_RELEASED"
   :description "example project for the weasel ClojureScript REPL env"
-  :url "https://github.com/tomjakubowski/weasel"
+  :url "https://github.com/nrepl/weasel"
   :license {:name "Unlicense"
             :url "http://unlicense.org/UNLICENSE"
             :distribution :repo}

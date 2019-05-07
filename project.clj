@@ -1,6 +1,6 @@
 (defproject weasel "0.7.1-SNAPSHOT"
   :description "websocket REPL environment for ClojureScript"
-  :url "http://github.com/tomjakubowski/weasel"
+  :url "http://github.com/nrepl/weasel"
   :license {:name "Unlicense"
             :url "http://unlicense.org/UNLICENSE"
             :distribution :repo}
@@ -20,4 +20,4 @@
   :profiles {:dev {:dependencies [[cider/piggieback "0.4.0"]]}}
   :source-paths ["src/clj" "src/cljs"]
   :scm {:name "git"
-        :url "https://github.com/tomjakubowski/weasel"})
+        :url "https://github.com/nrepl/weasel"})
