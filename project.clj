@@ -7,10 +7,9 @@
   :scm {:name "git"
         :url "https://github.com/nrepl/weasel"}
 
-  :dependencies [[org.clojure/clojure "1.7.0-RC1"]
-                 [org.clojure/clojurescript "0.0-3308"]
-                 [org.clojure/google-closure-library "0.0-20140718-946a7d39" :scope "provided"]
-                 [http-kit "2.1.18"]]
+  :dependencies [[org.clojure/clojure "1.10.0"]
+                 [org.clojure/clojurescript "1.10.520"]
+                 [http-kit "2.3.0"]]
 
   :repositories [["releases" {:url "https://clojars.org/repo"
                               :creds :gpg}]]
