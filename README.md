@@ -8,6 +8,8 @@ environment which can execute compiled ClojureScript, which can be a
 web browser or any JavaScript environment that supports the WebSocket
 APIs.
 
+**We're looking for more maintainers for the project. If you're interested in helping out please ping @bbatsov.**
+
 ## Why?
 
 * A WebSocket transport is simple and avoids some of the thornier bugs
