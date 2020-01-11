@@ -20,5 +20,5 @@
                               [:name "Tom Jakubowski"]
                               [:email "tom@crystae.net"]
                               [:url "https://github.com/tomjakubowski"]]]
-  :profiles {:dev {:dependencies [[cider/piggieback "0.4.0"]]}}
+  :profiles {:dev {:dependencies [[cider/piggieback "0.4.2"]]}}
   :source-paths ["src/clj" "src/cljs"])
