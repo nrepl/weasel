@@ -32,7 +32,7 @@ Weasel is intended to be used with nREPL's
 add Weasel as a dependency to `project.clj`:
 
 ```clojure
-[weasel "0.7.0" :exclusions [org.clojure/clojurescript]]
+[weasel "0.7.1" :exclusions [org.clojure/clojurescript]]
 ```
 
 Start up `lein repl` and piggieback the Weasel REPL environment onto
