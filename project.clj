@@ -11,8 +11,10 @@
                  [org.clojure/clojurescript "1.10.520"]
                  [http-kit "2.3.0"]]
 
-  :repositories [["releases" {:url "https://clojars.org/repo"
-                              :creds :gpg}]]
+  :deploy-repositories [["clojars" {:url "https://clojars.org/repo"
+                                    :username :env/clojars_username
+                                    :password :env/clojars_password
+                                    :sign-releases false}]]
 
   :pom-addition [:developers [:developer
                               [:name "Tom Jakubowski"]
