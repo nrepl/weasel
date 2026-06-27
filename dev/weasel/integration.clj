@@ -6,6 +6,7 @@
     * the heartbeat (the client keeps pinging, the server pongs, and the
       connection is not torn down)
     * auto-reconnect after the server is bounced
+    * takeover: a second client becomes the active eval target
 
   Run with:
 
@@ -26,7 +27,7 @@
 (defn- fresh-round! []
   (reset! signals {:ready (promise) :printed (promise) :result (promise)}))
 
-(defn- handle [data]
+(defn- handle [channel data]
   (let [msg (edn/read-string data)
         {:keys [ready printed result]} @signals]
     (case (:op msg)
@@ -34,7 +35,8 @@
       :print  (deliver printed (:value msg))
       :result (deliver result (:value msg))
       :ping   (do (swap! ping-count inc)
-                  (server/send! (pr-str {:op :pong})))
+                  ;; pong back to the client that pinged, like the real server
+                  (server/send-to! channel (pr-str {:op :pong})))
       nil)))
 
 (defn- await! [what p]
@@ -46,20 +48,24 @@
 (defn- wait-for-client! [what]
   ;; like server/wait-for-client, but bounded so a broken reconnect fails the
   ;; run instead of hanging forever
-  (when (= ::timeout (deref (server/channel) 10000 ::timeout))
+  (when (= ::timeout (deref (server/ready) 10000 ::timeout))
     (throw (ex-info (str "timed out waiting for " what) {}))))
 
 (defn- eval! [code]
   (server/send! (pr-str {:op :eval-js :code code})))
 
+(defn- ^Process launch-client [id]
+  (let [^"[Ljava.lang.String;" cmd (into-array String
+                                     ["node" client-js (str "ws://127.0.0.1:" port)
+                                      (str heartbeat-ms) id])]
+    (-> (ProcessBuilder. cmd) (.inheritIO) (.start))))
+
 (defn -main [& _]
   (let [ok? (atom false)]
     (fresh-round!)
     (server/start handle :ip "127.0.0.1" :port port)
-    (let [^"[Ljava.lang.String;" cmd (into-array String
-                                       ["node" client-js (str "ws://127.0.0.1:" port)
-                                        (str heartbeat-ms)])
-          proc (-> (ProcessBuilder. cmd) (.inheritIO) (.start))]
+    (let [proc (launch-client "A")
+          proc-b (atom nil)]
       (try
         ;; round 1 - result and print travel back over the socket
         (wait-for-client! "client to connect")
@@ -90,13 +96,30 @@
         (assert (= "42" (:value (await! ":result (after reconnect)" (:result @signals))))
                 "reconnected eval returned the wrong value")
 
+        ;; round 3 - a second client connects and takes over as the eval target;
+        ;; client A stays connected (passive)
+        (fresh-round!)
+        (reset! proc-b (launch-client "B"))
+        (await! ":ready (client B)" (:ready @signals))
+        (let [ready-at-takeover @ready-count]
+          (eval! "globalThis.CLIENT_ID")
+          (assert (= "B" (:value (await! ":result (takeover)" (:result @signals))))
+                  "eval did not target the most recently connected client")
+          ;; both clients keep pinging; with pongs routed to the pinger neither
+          ;; is torn down, so no client reconnects (which would bump ready-count)
+          (Thread/sleep (long (* 5 heartbeat-ms)))
+          (assert (= ready-at-takeover @ready-count)
+                  (str "a client reconnected during coexistence (pong misrouting?); "
+                       ":ready count went " ready-at-takeover " -> " @ready-count)))
+
         (reset! ok? true)
         (println (str "PASS - eval, print, heartbeat (" @ping-count
-                      " pings) and reconnect all verified"))
+                      " pings), reconnect and takeover all verified"))
         (catch Throwable e
           (println "FAIL:" (.getMessage e)))
         (finally
           (.destroy proc)
+          (when-let [^Process p @proc-b] (.destroy p))
           (server/stop))))
     (when-not @ok?
       (System/exit 1))))
