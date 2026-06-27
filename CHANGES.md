@@ -29,6 +29,11 @@
   silently dead connection and triggers a reconnect. It is off by default and
   enabled via the `:heartbeat-interval` option; it never disrupts a server that
   doesn't answer pings.
+* The server no longer rejects a second client. Several clients may be connected
+  at once; evaluations go to the most recently connected one (so a new client
+  takes over the REPL) while the others stay connected and their output still
+  reaches the REPL. An evaluation whose target client disconnects mid-flight now
+  reports an error instead of hanging the REPL.
 * Ship a `deps.edn` so the library can be consumed via the Clojure CLI / tools.deps.
 * Add a GitHub Actions CI pipeline and a basic test suite, including a Node
   round-trip integration test that exercises the full eval cycle over a real
