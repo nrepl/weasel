@@ -77,8 +77,26 @@ You may optionally specify the following:
        ; or any variadic function to handle printing differently.
        ; defaults to :repl
 :on-open, :on-error, :on-close ; fns for handling websocket lifecycle events.
-                               ; default for all is nil
+                               ; default for all is nil. :on-open and :on-close
+                               ; fire once per connection (not on every
+                               ; reconnect); :on-error receives the native
+                               ; WebSocket event.
+:reconnect? ; boolean, whether to reconnect automatically when the
+            ; connection drops. defaults to true
+:reconnect-delay ; initial reconnect backoff in ms, defaults to 1000.
+                 ; the delay doubles after each failed attempt
+:max-reconnect-delay ; ceiling for the backoff in ms, defaults to 30000
+:heartbeat-interval ; ms between keepalive pings used to detect a silently
+                    ; dead connection. 0 disables it, which is the default.
+                    ; a few missed pongs are tolerated before the link is
+                    ; considered dead, and a server that never answers pings
+                    ; is left undisturbed
 ```
+
+The connection survives page reloads and server restarts on its own, retrying
+with the backoff until it gets back in (or the server rejects it outright, e.g.
+when another client already holds the REPL). Call `(repl/disconnect)` to close
+it for good and stop the reconnection attempts.
 
 Connecting with options:
 ```clojure
