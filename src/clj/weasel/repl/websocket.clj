@@ -57,6 +57,15 @@
   :ready
   [_ _])
 
+(defmethod process-message
+  :ping
+  [_ _]
+  (server/send! (pr-str {:op :pong})))
+
+(defmethod process-message
+  :default
+  [_ _])
+
 (defn- websocket-setup-env
   [this opts]
   (reset! repl-out *out*)
