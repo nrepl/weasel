@@ -10,16 +10,18 @@
   "stores the value of *out* when the server is started"
   (atom nil))
 
-(def ^:private client-response
-  "stores a promise fulfilled by a client's eval response"
+(def ^:private pending-eval
+  "the outstanding evaluation as {:channel ch :promise p}, or nil. Keeping the
+   target channel and its result promise in one atom means they are always read
+   and written together, so only the client an eval was sent to can satisfy it."
   (atom nil))
 
 (declare
-  send-for-eval!
   websocket-setup-env
   websocket-eval
   load-javascript
   websocket-tear-down-env
+  on-client-disconnect
   transitive-deps)
 
 (defrecord WebsocketEnv []
@@ -37,14 +39,25 @@
      :port 9001}
     opts))
 
+(def ^:private disconnect-result
+  {:status :exception
+   :value "Weasel client disconnected before returning a result"
+   :stacktrace "No stacktrace available."})
+
+(defn- deliver-if-active!
+  "Delivers `value` to the outstanding evaluation, but only if it was sent to
+   `channel` - so a stale or foreign message can't satisfy the wrong eval."
+  [channel value]
+  (when-let [{:keys [promise] ch :channel} @pending-eval]
+    (when (= channel ch)
+      (deliver promise value))))
+
 (defmulti ^:private process-message (fn [_ msg] (:op msg)))
 
 (defmethod process-message
   :result
-  [_ message]
-  (let [result (:value message)]
-    (when-not (nil? @client-response)
-      (deliver @client-response result))))
+  [channel message]
+  (deliver-if-active! channel (:value message)))
 
 (defmethod process-message
   :print
@@ -59,20 +72,28 @@
 
 (defmethod process-message
   :ping
-  [_ _]
-  (server/send! (pr-str {:op :pong})))
+  [channel _]
+  ;; pong back to the client that pinged, not the active one
+  (server/send-to! channel (pr-str {:op :pong})))
 
 (defmethod process-message
   :default
   [_ _])
 
+(defn- on-client-disconnect
+  "Unblocks an outstanding evaluation when the client it was sent to drops, so
+   the REPL reports an error instead of hanging forever."
+  [channel]
+  (deliver-if-active! channel disconnect-result))
+
 (defn- websocket-setup-env
   [this opts]
   (reset! repl-out *out*)
   (server/start
-    (fn [data] (process-message this (read-string data)))
+    (fn [channel data] (process-message channel (read-string data)))
     :ip (:ip this)
     :port (:port this))
+  (server/on-disconnect! on-client-disconnect)
   (let [{:keys [ip pre-connect]} this]
     (let [port (-> @server/state :server meta :local-port)]
       (println (str "<< started Weasel server on ws://" ip ":" port " >>")))
@@ -90,16 +111,18 @@
 
 (defn- websocket-eval
   [js]
-  (reset! client-response (promise))
-  (send-for-eval! js)
-  (let [ret @@client-response]
-    (reset! client-response nil)
-    ret))
+  (let [channel (server/active-channel)
+        p (promise)]
+    (reset! pending-eval {:channel channel :promise p})
+    ;; if the channel is already closed the message is silently dropped, so
+    ;; surface that immediately rather than waiting for a result that won't come
+    (when (false? (server/send-to! channel (pr-str {:op :eval-js, :code js})))
+      (deliver p disconnect-result))
+    (let [ret @p]
+      (reset! pending-eval nil)
+      ret)))
 
 (defn- load-javascript
   [_ provides _]
   (websocket-eval
     (str "goog.require('" (cmp/munge (first provides)) "')")))
-
-(defn- send-for-eval! [js]
-  (server/send! (pr-str {:op :eval-js, :code js})))
