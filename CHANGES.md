@@ -20,6 +20,15 @@
 
 ### Enhancements
 
+* The client now reconnects automatically when the connection drops (page
+  reload, server restart, flaky network) using an exponential backoff. It is
+  on by default and tunable via the `:reconnect?`, `:reconnect-delay` and
+  `:max-reconnect-delay` options. Call `weasel.repl/disconnect` to close the
+  connection and stop reconnecting.
+* Added an optional application-level heartbeat (`:ping`/`:pong`) that detects a
+  silently dead connection and triggers a reconnect. It is off by default and
+  enabled via the `:heartbeat-interval` option; it never disrupts a server that
+  doesn't answer pings.
 * Ship a `deps.edn` so the library can be consumed via the Clojure CLI / tools.deps.
 * Add a GitHub Actions CI pipeline and a basic test suite, including a Node
   round-trip integration test that exercises the full eval cycle over a real
