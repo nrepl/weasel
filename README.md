@@ -18,13 +18,10 @@ APIs.
   standard ClojureScript browser REPL and Austin. (see:
   [cemerick/austin#17][austin-17], [cemerick/austin#47][austin-47],
   [cemerick/austin#49][austin-49])
-* WebSocket APIs are available in unusual JavaScript environments like
-  [JavaScriptCore][goby], [QML][qml], [WinJS][winjs], browser
-  extensions, Mac OS X Dashboard widgets, and so on, where use of
-  `CrossPageChannel` may be unfeasible due to restrictions on or
-  unavailability of `<iframe>` elements.  Weasel allows the
-  ClojureScript developer to still enjoy the benefits of REPL driven
-  development in these exotic domains.
+* WebSocket APIs are available far beyond the browser - Node, Deno, Bun, web
+  and service workers, browser extensions, React Native, and more exotic
+  embeddings like [QML][qml] - so Weasel can give you a REPL driven workflow in
+  environments where the iframe-based standard browser REPL simply can't run.
 
 ## Usage
 
@@ -116,6 +113,25 @@ cljs.user> (do (js/alert "Hello world!") 42)
 42
 ```
 
+### Non-browser runtimes
+
+Because the client talks over the platform's native `WebSocket`, it isn't tied
+to the browser. Any runtime with a global `WebSocket` works, including Node 22+,
+Deno, Bun, and web/service workers. Require `weasel.repl` from code compiled for
+that target and call `repl/connect` exactly as you would in a browser:
+
+```clojure
+(ns my.app
+  (:require [weasel.repl :as repl]))
+
+(repl/connect "ws://localhost:9001")
+```
+
+The only browser-specific piece is Closure's script-tag code loading used to
+pull in namespaces first required at the REPL; it's skipped automatically when
+there is no `document`. Evaluating forms, printing, reconnection and the
+heartbeat all behave the same everywhere.
+
 Note that unless a client is connected to the WebSocket channel,
 evaluation will fail:
 
@@ -137,7 +153,7 @@ this project.
 ## Need help?
 
 If you have any feedback or issues to report, feel free to open an
-issue on [GitHub](https://github.com/tomjakubowski/weasel).
+issue on [GitHub](https://github.com/nrepl/weasel).
 
 ## A weasel "piggiebacking" on a woodpecker
 
@@ -145,9 +161,7 @@ A little treat for reading the whole README!
 
 ![](http://i.imgur.com/XIaZZ2k.jpg)
 
-[goby]: <https://github.com/mfikes/goby>
 [qml]: <http://doc.qt.io/qt-5/qml-qt-websockets-websocket.html>
-[winjs]: <https://msdn.microsoft.com/en-us/library/windows/apps/hh761442.aspx>
 [nREPL]: <https://github.com/nrepl/nrepl>
 [piggieback]: <https://github.com/nrepl/piggieback>
 [austin-17]: <https://github.com/cemerick/austin/issues/17>
