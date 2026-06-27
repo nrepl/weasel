@@ -24,7 +24,15 @@
   :test-paths ["test/clj"]
   :profiles {:dev {:dependencies [[cider/piggieback "0.6.0"]]
                    :plugins [[lein-cljsbuild "1.1.8"]]
+                   :source-paths ["dev"]
                    :cljsbuild {:builds [{:id "smoke"
                                          :source-paths ["src/cljs"]
                                          :compiler {:output-to "target/weasel-smoke.js"
-                                                    :optimizations :advanced}}]}}})
+                                                    :optimizations :advanced}}
+                                        {:id "node"
+                                         :source-paths ["src/cljs" "test/cljs"]
+                                         :compiler {:output-to "target/node/weasel_node_client.js"
+                                                    :output-dir "target/node"
+                                                    :target :nodejs
+                                                    :main weasel.node-client
+                                                    :optimizations :none}}]}}})
