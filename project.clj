@@ -1,4 +1,4 @@
-(defproject weasel "0.7.1"
+(defproject weasel "0.8.0-SNAPSHOT"
   :description "websocket REPL environment for ClojureScript"
   :url "http://github.com/nrepl/weasel"
   :license {:name "Unlicense"
@@ -7,9 +7,9 @@
   :scm {:name "git"
         :url "https://github.com/nrepl/weasel"}
 
-  :dependencies [[org.clojure/clojure "1.10.0"]
-                 [org.clojure/clojurescript "1.10.520"]
-                 [http-kit "2.3.0"]]
+  :dependencies [[org.clojure/clojure "1.12.5"]
+                 [org.clojure/clojurescript "1.12.134"]
+                 [http-kit "2.8.1"]]
 
   :deploy-repositories [["clojars" {:url "https://clojars.org/repo"
                                     :username :env/clojars_username
@@ -20,5 +20,11 @@
                               [:name "Tom Jakubowski"]
                               [:email "tom@crystae.net"]
                               [:url "https://github.com/tomjakubowski"]]]
-  :profiles {:dev {:dependencies [[cider/piggieback "0.4.2"]]}}
-  :source-paths ["src/clj" "src/cljs"])
+  :source-paths ["src/clj" "src/cljs"]
+  :test-paths ["test/clj"]
+  :profiles {:dev {:dependencies [[cider/piggieback "0.6.0"]]
+                   :plugins [[lein-cljsbuild "1.1.8"]]
+                   :cljsbuild {:builds [{:id "smoke"
+                                         :source-paths ["src/cljs"]
+                                         :compiler {:output-to "target/weasel-smoke.js"
+                                                    :optimizations :advanced}}]}}})

@@ -5,8 +5,8 @@
             :url "http://unlicense.org/UNLICENSE"
             :distribution :repo}
 
-  :dependencies [[org.clojure/clojure "1.10.0"]
-                 [org.clojure/clojurescript "1.10.520"]
+  :dependencies [[org.clojure/clojure "1.12.5"]
+                 [org.clojure/clojurescript "1.12.134"]
                  [weasel "0.7.1"]]
 
   :repl-options {:welcome (println "Run (start-weasel) to start a Weasel REPL.")
@@ -16,8 +16,8 @@
                            (cider.piggieback/cljs-repl
                              (apply weasel.repl.websocket/repl-env opts))))}
   :source-paths ["src"]
-  :profiles {:dev {:dependencies [[cider/piggieback "0.4.2"]]
-                   :plugins [[lein-cljsbuild "1.1.7"]]
+  :profiles {:dev {:dependencies [[cider/piggieback "0.6.0"]]
+                   :plugins [[lein-cljsbuild "1.1.8"]]
                    :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
                    :cljsbuild {:builds [{:id "weasel-example"
                                          :source-paths ["src"]
