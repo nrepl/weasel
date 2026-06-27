@@ -1,6 +1,7 @@
 # Weasel
 
 [![Clojars Project](http://clojars.org/weasel/latest-version.svg)](http://clojars.org/weasel)
+[![CI](https://github.com/nrepl/weasel/actions/workflows/ci.yml/badge.svg)](https://github.com/nrepl/weasel/actions/workflows/ci.yml)
 
 Weasel uses WebSockets to communicate between a ClojureScript REPL,
 which is typically hosted on [nREPL][] using [piggieback][], and an
@@ -33,6 +34,12 @@ add Weasel as a dependency to `project.clj`:
 
 ```clojure
 [weasel "0.7.1" :exclusions [org.clojure/clojurescript]]
+```
+
+Or, if you're using `deps.edn`:
+
+```clojure
+{:deps {weasel/weasel {:mvn/version "0.7.1"}}}
 ```
 
 Start up `lein repl` and piggieback the Weasel REPL environment onto

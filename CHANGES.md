@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.8.0 (unreleased)
+
+### Changes
+
+* Bump the minimum dependencies to Clojure 1.12 and ClojureScript 1.12.
+* Bump `http-kit` to 2.8.1 and (dev-only) `piggieback` to 0.6.0.
+
+### Enhancements
+
+* Ship a `deps.edn` so the library can be consumed via the Clojure CLI / tools.deps.
+* Add a GitHub Actions CI pipeline and a basic test suite.
+
 ## 0.7.0
 
 ### Enhancements
