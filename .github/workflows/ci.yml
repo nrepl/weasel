@@ -23,6 +23,11 @@ jobs:
         with:
           lein: latest
 
+      - name: Set up Node (native WebSocket runtime for the integration test)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - name: Cache Maven dependencies
         uses: actions/cache@v4
         with:
@@ -36,5 +41,8 @@ jobs:
       - name: Run tests
         run: lein test
 
-      - name: Compile ClojureScript client
-        run: lein cljsbuild once smoke
+      - name: Compile the ClojureScript client (browser + Node builds)
+        run: lein cljsbuild once smoke node
+
+      - name: Round-trip the REPL over a native WebSocket
+        run: lein run -m weasel.integration

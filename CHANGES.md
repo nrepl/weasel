@@ -6,11 +6,24 @@
 
 * Bump the minimum dependencies to Clojure 1.12 and ClojureScript 1.12.
 * Bump `http-kit` to 2.8.1 and (dev-only) `piggieback` to 0.6.0.
+* The REPL client now talks over the platform's native `WebSocket` instead of
+  the legacy `goog.net.WebSocket` / `clojure.browser.net` machinery. As a
+  result the client runs in any modern JavaScript runtime (browsers, Node 22+,
+  Deno, Bun, web/service workers), not just the browser. Two consequences worth
+  calling out:
+  * The `weasel.impls.websocket` namespace, previously a `goog.net`-based
+    protocol implementation, is now a small functional wrapper. Code that
+    depended on its old vars (`websocket-connection`, the `IConnection`
+    protocol, etc.) needs updating.
+  * The objects passed to the `:on-error` and `:on-close` callbacks are now
+    native `WebSocket` events rather than `goog.net.WebSocket` events.
 
 ### Enhancements
 
 * Ship a `deps.edn` so the library can be consumed via the Clojure CLI / tools.deps.
-* Add a GitHub Actions CI pipeline and a basic test suite.
+* Add a GitHub Actions CI pipeline and a basic test suite, including a Node
+  round-trip integration test that exercises the full eval cycle over a real
+  WebSocket.
 
 ## 0.7.0
 
