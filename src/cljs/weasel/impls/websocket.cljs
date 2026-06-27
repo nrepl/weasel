@@ -1,51 +1,59 @@
-;;  Copyright (c) Rich Hickey. All rights reserved.
-;;  The use and distribution terms for this software are covered by the
-;;  Eclipse Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)
-;;  which can be found in the file epl-v10.html at the root of this distribution.
-;;  By using this software in any fashion, you are agreeing to be bound by
-;;  the terms of this license.
-;;  You must not remove this notice, or any other, from this software.
-
 (ns weasel.impls.websocket
-  (:require [clojure.browser.net :as net :refer [IConnection connect transmit]]
-            [clojure.browser.event :as event :refer [event-types]]
-            [goog.net.WebSocket :as gwebsocket]))
+  "A thin wrapper over the platform's native `WebSocket` object.
 
-(defprotocol IWebSocket
-  (open? [this]))
+  Every modern JavaScript runtime - browsers, Node 21+, Deno, Bun, web and
+  service workers, React Native - exposes a global `WebSocket`, so the REPL
+  client no longer needs the legacy `goog.net.WebSocket` /
+  `clojure.browser.net` machinery to talk to the server.")
 
-(defn websocket-connection
-  ([]
-     (websocket-connection nil nil))
-  ([auto-reconnect?]
-     (websocket-connection auto-reconnect? nil))
-  ([auto-reconnect? next-reconnect-fn]
-     (goog.net.WebSocket. auto-reconnect? next-reconnect-fn)))
+(defn available?
+  "Returns true when the runtime exposes a native `WebSocket` constructor."
+  []
+  (exists? js/WebSocket))
 
-(extend-type goog.net.WebSocket
-  IWebSocket
-  (open? [this]
-    (.isOpen this ()))
+(defn open?
+  "Returns true when `socket` is connected and ready to send."
+  [socket]
+  (and (some? socket)
+       (== (.-readyState socket) (.-OPEN js/WebSocket))))
 
-  net/IConnection
-  (connect
-    ([this url]
-       (connect this url nil))
-    ([this url protocol]
-       (.open this url protocol)))
+(defn send!
+  "Sends `message` (a string) over `socket`, but only while the socket is
+  open. A native `WebSocket` throws when `send` is called in any other state,
+  so anything emitted before the connection opens or after it closes is
+  silently dropped."
+  [socket message]
+  (when (open? socket)
+    (.send socket message)))
 
-  (transmit [this message]
-    (.send this message))
+(defn close!
+  "Closes `socket`."
+  [socket]
+  (.close socket))
 
-  (close [this]
-    (.close this ()))
+(defn connect!
+  "Opens a `WebSocket` to `url` and wires the supplied handlers.
 
-  event/IEventType
-  (event-types [this]
-    (into {}
-      (map
-        (fn [[k v]]
-          [(keyword (. k (toLowerCase)))
-           v])
-        (merge
-          (js->clj goog.net.WebSocket/EventType))))))
+  `handlers` is a map of optional callbacks:
+
+    :on-open    (fn [socket] ...)        called once the socket is open
+    :on-message (fn [socket string] ...) called with each received text frame
+    :on-error   (fn [event] ...)         called on a transport error
+    :on-close   (fn [event] ...)         called when the socket closes
+
+  The send-side handlers receive the socket itself so they always reply over
+  the connection that fired the event, never a newer one. Returns the freshly
+  created `WebSocket`."
+  [url {:keys [on-open on-message on-error on-close]}]
+  (when-not (available?)
+    (throw (js/Error. "This JavaScript runtime does not provide a WebSocket implementation")))
+  (let [socket (js/WebSocket. url)]
+    (when on-open
+      (set! (.-onopen socket) (fn [_] (on-open socket))))
+    (when on-message
+      (set! (.-onmessage socket) (fn [e] (on-message socket (.-data e)))))
+    (when on-error
+      (set! (.-onerror socket) (fn [e] (on-error e))))
+    (when on-close
+      (set! (.-onclose socket) (fn [e] (on-close e))))
+    socket))

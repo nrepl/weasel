@@ -1,17 +1,21 @@
 (ns weasel.repl
-  (:require [goog.dom :as gdom]
-            [clojure.browser.event :as event :refer [event-types]]
-            [clojure.browser.net :as net]
-            [clojure.browser.repl :as brepl]
+  (:require [clojure.browser.repl :as brepl]
             [cljs.reader :as reader :refer [read-string]]
             [weasel.impls.websocket :as ws]))
 
 (def ^:private ws-connection (atom nil))
 
-(defn alive? []
+(defn alive?
   "Returns truthy value if the REPL is attempting to connect or is
    connected, or falsy value otherwise."
-  (not (nil? @ws-connection)))
+  []
+  (some? @ws-connection))
+
+(defn- browser?
+  "Returns true when running in a browser-like environment that can load
+   additional code via Closure's script-tag mechanism."
+  []
+  (exists? js/document))
 
 (defmulti process-message :op)
 
@@ -40,8 +44,8 @@
 
 (defn repl-print
   [& args]
-  (if-let [conn @ws-connection]
-    (net/transmit @ws-connection {:op :print :value (apply pr-str args)})))
+  (when-let [conn @ws-connection]
+    (ws/send! conn (pr-str {:op :print :value (apply pr-str args)}))))
 
 (defn console-print [& args]
   (.apply (.-log js/console) js/console (into-array args)))
@@ -56,33 +60,36 @@
 (defn connect
   [repl-server-url & {:keys [verbose on-open on-error on-close print]
                       :or {verbose true, print :repl}}]
-  (let [repl-connection (ws/websocket-connection)]
-    (swap! ws-connection (constantly repl-connection))
-    (event/listen repl-connection :opened
-      (fn [evt]
-        (set-print-fn! (if (fn? print) print (get print-fns print)))
-        (net/transmit repl-connection (pr-str {:op :ready}))
-        (when verbose (.info js/console "Opened Websocket REPL connection"))
-        (when (fn? on-open) (on-open))))
+  (let [repl-connection
+        (ws/connect! repl-server-url
+          {:on-open
+           (fn [socket]
+             (set-print-fn! (if (fn? print) print (get print-fns print)))
+             (ws/send! socket (pr-str {:op :ready}))
+             (when verbose (.info js/console "Opened Websocket REPL connection"))
+             (when (fn? on-open) (on-open)))
 
-    (event/listen repl-connection :message
-      (fn [evt]
-        (let [{:keys [op] :as message} (read-string (.-message evt))
-              response (-> message process-message pr-str)]
-          (net/transmit repl-connection response))))
+           :on-message
+           (fn [socket data]
+             (let [message (read-string data)
+                   response (-> message process-message pr-str)]
+               (ws/send! socket response)))
 
-    (event/listen repl-connection :closed
-      (fn [evt]
-        (reset! ws-connection nil)
-        (when verbose (.info js/console "Closed Websocket REPL connection"))
-        (when (fn? on-close) (on-close))))
+           :on-close
+           (fn [_]
+             (reset! ws-connection nil)
+             (when verbose (.info js/console "Closed Websocket REPL connection"))
+             (when (fn? on-close) (on-close)))
 
-    (event/listen repl-connection :error
-      (fn [evt]
-        (when verbose (.error js/console "WebSocket error" evt))
-        (when (fn? on-error) (on-error evt))))
+           :on-error
+           (fn [evt]
+             (when verbose (.error js/console "WebSocket error" evt))
+             (when (fn? on-error) (on-error evt)))})]
 
-    ;; reusable bootstrap
-    (brepl/bootstrap)
+    (reset! ws-connection repl-connection)
 
-    (net/connect repl-connection repl-server-url)))
+    ;; reusable bootstrap - only meaningful in a browser, where new code is
+    ;; loaded by appending script tags to the document
+    (when (browser?) (brepl/bootstrap))
+
+    repl-connection))
