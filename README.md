@@ -141,9 +141,11 @@ java.io.IOException: No client connected to Websocket
 nil
 ```
 
-Only a single client can be connected to the REPL at once.  Attempting
-to connect to an occupied REPL server will throw an exception in the
-client.
+More than one client may be connected at once. Evaluations are sent to the
+most recently connected client, so a newly connected client takes over the
+REPL; the others stay connected and their printed output still reaches the
+REPL. This pairs naturally with auto-reconnect - a client that drops and
+comes back simply becomes the active one again.
 
 ## Example
 
