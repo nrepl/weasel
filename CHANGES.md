@@ -34,6 +34,12 @@
   takes over the REPL) while the others stay connected and their output still
   reaches the REPL. An evaluation whose target client disconnects mid-flight now
   reports an error instead of hanging the REPL.
+* The server now validates the `Origin` header of incoming WebSocket
+  connections. By default only local origins (`localhost`, `127.0.0.1`, `[::1]`)
+  are accepted, closing a hole where any page open in the developer's browser
+  could connect to the REPL. Use the new `:allowed-origins` repl-env option (a
+  collection of origins, a predicate, or `:all`) to widen it. Non-browser
+  clients send no `Origin` header and are unaffected.
 * Ship a `deps.edn` so the library can be consumed via the Clojure CLI / tools.deps.
 * Add a GitHub Actions CI pipeline and a basic test suite, including a Node
   round-trip integration test that exercises the full eval cycle over a real

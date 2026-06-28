@@ -147,6 +147,36 @@ REPL; the others stay connected and their printed output still reaches the
 REPL. This pairs naturally with auto-reconnect - a client that drops and
 comes back simply becomes the active one again.
 
+### Security
+
+The REPL server validates the `Origin` header of every WebSocket handshake.
+WebSocket connections aren't subject to the same-origin policy, so without this
+any page a developer happens to have open could connect to the server and take
+over the REPL. By default only origins on the local machine (`localhost`,
+`127.0.0.1`, `[::1]`, on any port, over http or https) are accepted, which covers
+the usual "app served from localhost" setup. Non-browser clients (Node, Deno,
+Bun) send no `Origin` header and are always allowed.
+
+If you serve your app from somewhere else - a LAN IP for testing on a phone, a
+custom dev domain - widen the allowlist with `:allowed-origins`:
+
+```clojure
+(weasel.repl.websocket/repl-env
+  :ip "0.0.0.0" :port 9001
+  :allowed-origins ["http://192.168.1.5:8080"])
+```
+
+`:allowed-origins` accepts a single origin string, a collection of exact origin
+strings, a one-argument predicate that receives the origin (which may be `nil`),
+or `:all` to turn the check off entirely.
+
+Two things worth knowing about the built-in policies. A page opened straight from
+disk over `file://` sends `Origin: null` and is rejected - serve it over
+`http://localhost` instead, or pass `:all`. And a client that sends no `Origin`
+header at all (every non-browser runtime) is always accepted, since browsers are
+the only thing the same-origin rule constrains; pass your own predicate if you
+need to restrict header-less clients too.
+
 ## Example
 
 An example project is included in the `weasel-example` subdirectory of
