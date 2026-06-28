@@ -92,7 +92,8 @@
   (server/start
     (fn [channel data] (process-message channel (read-string data)))
     :ip (:ip this)
-    :port (:port this))
+    :port (:port this)
+    :allowed-origins (:allowed-origins this))
   (server/on-disconnect! on-client-disconnect)
   (let [{:keys [ip pre-connect]} this]
     (let [port (-> @server/state :server meta :local-port)]

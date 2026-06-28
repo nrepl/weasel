@@ -9,7 +9,8 @@
                                          ; fresh one once the last client leaves;
                                          ; nil while the server is stopped
                       :response-fn nil   ; (fn [channel data])
-                      :on-disconnect nil})) ; (fn [channel])
+                      :on-disconnect nil ; (fn [channel])
+                      :origin-allowed? nil})) ; (fn [origin]) -> truthy to accept
 
 ;; Guards the :clients/:ready invariant (":ready is a realized promise iff
 ;; :clients is non-empty, and nil iff the server is stopped") so add/remove,
@@ -41,9 +42,53 @@
       (when-let [f (:on-disconnect @state)]
         (f channel)))))
 
+(defn- localhost-origin?
+  "True for an origin served from the local machine, on any port, http or https."
+  [origin]
+  (boolean (re-matches #"(?i)https?://(localhost|127\.0\.0\.1|\[::1\])(:\d+)?" origin)))
+
+(defn ->origin-allowed-fn
+  "Builds the predicate that accepts or rejects a connection by its `Origin`
+   header. `allowed` may be:
+
+     :local (or nil) - only origins on the local machine (the secure default)
+     :all            - any origin, which disables the check
+     a string        - a single allowed origin
+     a collection    - an explicit allowlist of exact origin strings
+     a one-arg fn    - called with the origin (which may be nil); you decide
+
+   WebSocket handshakes aren't bound by the same-origin policy, so without this
+   any page a developer has open could connect to the REPL server. Non-browser
+   clients don't send an `Origin` header at all, so a missing origin is accepted
+   by every built-in policy; supply your own predicate to tighten that."
+  [allowed]
+  (cond
+    (or (nil? allowed) (= allowed :local)) #(or (nil? %) (localhost-origin? %))
+    (= allowed :all) (constantly true)
+    (fn? allowed) allowed
+    (string? allowed) (recur [allowed]) ; a bare origin is a one-element allowlist
+    (coll? allowed) (let [origins (set allowed)] #(or (nil? %) (contains? origins %)))
+    :else (throw (IllegalArgumentException.
+                   (str "Invalid :allowed-origins value: " (pr-str allowed))))))
+
+(def ^:private default-origin-allowed?
+  "Fallback policy for a handshake that arrives without a stored one (e.g. one
+   racing server shutdown): the secure local-only default."
+  (->origin-allowed-fn :local))
+
+(defn- origin-allowed? [request]
+  (boolean ((or (:origin-allowed? @state) default-origin-allowed?)
+            (get-in request [:headers "origin"]))))
+
 (defn handler [request]
-  (if-not (:websocket? request)
+  (cond
+    (not (:websocket? request))
     {:status 200 :body "Please connect with a websocket!"}
+
+    (not (origin-allowed? request))
+    {:status 403 :body "Origin not allowed"}
+
+    :else
     (with-channel request channel
       ;; multiple clients may connect; the most recent one wins evaluations,
       ;; while the others stay connected so their prints still reach the REPL
@@ -93,15 +138,20 @@
   (swap! state assoc :on-disconnect f))
 
 (defn start
-  [f & {:keys [ip port] :as opts}]
+  [f & {:keys [ip port allowed-origins] :as opts}]
   {:pre [(ifn? f)]}
-  (locking lock
-    (swap! state assoc
-      :server (http/run-server #'handler opts)
-      :clients []
-      :ready (promise)
-      :response-fn f
-      :on-disconnect nil)))
+  ;; build (and validate) the origin policy before binding the port, so a bad
+  ;; :allowed-origins throws without leaking a running server we can't stop
+  (let [origin-allowed? (->origin-allowed-fn allowed-origins)]
+    (locking lock
+      (swap! state assoc
+        ;; :allowed-origins is ours, not an http-kit option, so keep it out of opts
+        :server (http/run-server #'handler (dissoc opts :allowed-origins))
+        :clients []
+        :ready (promise)
+        :response-fn f
+        :on-disconnect nil
+        :origin-allowed? origin-allowed?))))
 
 (defn stop []
   (locking lock
@@ -116,7 +166,8 @@
                        :clients []
                        :ready nil
                        :response-fn nil
-                       :on-disconnect nil})
+                       :on-disconnect nil
+                       :origin-allowed? nil})
         @state))))
 
 (defn wait-for-client []
