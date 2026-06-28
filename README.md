@@ -91,9 +91,8 @@ You may optionally specify the following:
 ```
 
 The connection survives page reloads and server restarts on its own, retrying
-with the backoff until it gets back in (or the server rejects it outright, e.g.
-when another client already holds the REPL). Call `(repl/disconnect)` to close
-it for good and stop the reconnection attempts.
+with the backoff until it gets back in. Call `(repl/disconnect)` to close it for
+good and stop the reconnection attempts.
 
 Connecting with options:
 ```clojure
@@ -176,6 +175,44 @@ disk over `file://` sends `Origin: null` and is rejected - serve it over
 header at all (every non-browser runtime) is always accepted, since browsers are
 the only thing the same-origin rule constrains; pass your own predicate if you
 need to restrict header-less clients too.
+
+## Editor integration
+
+Weasel is an ordinary piggieback ClojureScript REPL environment, so any nREPL
+client can drive it: start an nREPL server with piggieback on the classpath,
+connect your editor to it, and evaluate the `repl-env` form to upgrade the
+session into a Weasel REPL.
+
+If you use the Clojure CLI, an alias like this gives you that nREPL server:
+
+```clojure
+;; deps.edn
+{:aliases
+ {:cljs-repl
+  {:extra-deps {nrepl/nrepl {:mvn/version "1.3.1"}
+                cider/piggieback {:mvn/version "0.6.0"}
+                weasel/weasel {:mvn/version "0.7.1"}
+                org.clojure/clojurescript {:mvn/version "1.12.134"}}
+   :main-opts ["-m" "nrepl.cmdline"
+               "--middleware" "[cider.piggieback/wrap-cljs-repl]"]}}}
+```
+
+Run `clj -M:cljs-repl`, connect your editor to the port it prints, then start the
+Weasel REPL from the session:
+
+```clojure
+(require 'weasel.repl.websocket)
+(cider.piggieback/cljs-repl (weasel.repl.websocket/repl-env :port 9001))
+```
+
+**CIDER** (Emacs) ships a built-in Weasel REPL type, so you can skip the manual
+form: run `M-x cider-jack-in-cljs` (or `cider-connect-cljs`) and pick `weasel`
+when prompted for the ClojureScript REPL type.
+
+**Calva** (VS Code) has no Weasel preset, but the generic path works: use
+"Connect to a Running REPL in your Project", point it at the nREPL port from the
+alias above, and evaluate the `cljs-repl` form in the REPL window to drop into
+the Weasel REPL.
 
 ## Example
 
