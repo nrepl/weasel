@@ -45,6 +45,52 @@
       (server/stop)
       (is (= :woke (deref waiter 1000 ::timeout)) "stop wakes the waiter"))))
 
+(deftest origin-allowlist
+  (testing "the default :local policy accepts local origins and missing origins"
+    (let [allow? (#'server/->origin-allowed-fn :local)]
+      (is (allow? "http://localhost:8080"))
+      (is (allow? "http://127.0.0.1:3000"))
+      (is (allow? "https://localhost"))
+      (is (allow? "http://[::1]:9000"))
+      (is (allow? nil) "non-browser clients send no Origin header")
+      (is (not (allow? "http://evil.example.com")))
+      (is (not (allow? "http://localhost.evil.com")) "no suffix-match bypass")
+      (is (not (allow? "http://notlocalhost")) "no prefix-match bypass")))
+  (testing "nil is treated the same as :local"
+    (is ((#'server/->origin-allowed-fn nil) "http://localhost")))
+  (testing ":all disables the check"
+    (is ((#'server/->origin-allowed-fn :all) "http://evil.example.com")))
+  (testing "an explicit allowlist accepts only its members (plus missing origins)"
+    (let [allow? (#'server/->origin-allowed-fn ["https://app.example.com"])]
+      (is (allow? "https://app.example.com"))
+      (is (allow? nil))
+      (is (not (allow? "https://evil.example.com")))))
+  (testing "a bare origin string is treated as a one-element allowlist"
+    (let [allow? (#'server/->origin-allowed-fn "https://app.example.com")]
+      (is (allow? "https://app.example.com"))
+      (is (allow? nil))
+      (is (not (allow? "https://evil.example.com")))))
+  (testing "a custom predicate gets full control, including over a missing origin"
+    (let [allow? (#'server/->origin-allowed-fn (fn [o] (= o "app://prod")))]
+      (is (allow? "app://prod"))
+      (is (not (allow? nil)))))
+  (testing "an unusable value is rejected loudly"
+    (is (thrown? IllegalArgumentException (#'server/->origin-allowed-fn 42)))))
+
+(deftest handler-rejects-disallowed-origin
+  (testing "a cross-origin websocket handshake is refused with 403"
+    (server/start (fn [& _]) :ip "127.0.0.1" :port 0)
+    (try
+      (is (= 403 (:status (server/handler {:websocket? true
+                                           :headers {"origin" "http://evil.example.com"}}))))
+      (finally (server/stop)))))
+
+(deftest start-validates-allowed-origins-before-binding
+  (testing "a bad :allowed-origins throws without leaving a server running"
+    (is (thrown? IllegalArgumentException
+          (server/start (fn [& _]) :ip "127.0.0.1" :port 0 :allowed-origins 42)))
+    (is (nil? (:server @server/state)) "no server was bound")))
+
 (deftest stale-disconnect-after-stop-leaves-server-stopped
   (testing "a late client close after stop does not re-arm the readiness promise"
     (server/start (fn [& _]) :ip "127.0.0.1" :port 0)
