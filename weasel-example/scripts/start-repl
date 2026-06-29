@@ -1,9 +1,7 @@
 #!/bin/sh
 
-CLJSC_CP=$(lein classpath)
+# Start a plain terminal Weasel REPL (no editor / nREPL needed). Build the
+# browser example first with `clojure -M:build`, then serve index.html over
+# http://localhost and open it once this REPL is waiting for a client.
 
-java -server -cp $CLJSC_CP clojure.main -e "
-(require '[cljs.repl :as r])
-(require '[weasel.repl.websocket :as w])
-(r/repl (w/repl-env))
-"
+exec clojure -M -e "(require '[cljs.repl :as r] '[weasel.repl.websocket :as w]) (r/repl (w/repl-env))"

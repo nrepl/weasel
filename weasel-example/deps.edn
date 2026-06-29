@@ -1,0 +1,29 @@
+{:paths ["src"]
+
+ ;; This in-repo example depends on the Weasel checkout next to it, so it always
+ ;; exercises the current source. In your own project you'd instead pull a
+ ;; released version, e.g. {weasel/weasel {:mvn/version "0.8.0"}}.
+ :deps {weasel/weasel {:local/root ".."}}
+
+ :aliases
+ {;; clojure -M:build       compile the browser example into out/
+  :build {:main-opts ["-m" "cljs.main"
+                      "-O" "none"
+                      "-d" "out"
+                      "-o" "out/main.js"
+                      "-c" "weasel-example.example"]}
+
+  ;; clojure -M:node-build  compile the Node example into out-node/
+  :node-build {:main-opts ["-m" "cljs.main"
+                           "-t" "node"
+                           "-O" "none"
+                           "-d" "out-node"
+                           "-o" "out-node/main.js"
+                           "-c" "weasel-example.node"]}
+
+  ;; clojure -M:repl        start an nREPL server with piggieback, so you can
+  ;;                        connect an editor and piggieback a Weasel REPL onto it
+  :repl {:extra-deps {nrepl/nrepl {:mvn/version "1.3.1"}
+                      cider/piggieback {:mvn/version "0.6.0"}}
+         :main-opts ["-m" "nrepl.cmdline"
+                     "--middleware" "[cider.piggieback/wrap-cljs-repl]"]}}}

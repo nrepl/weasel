@@ -1,11 +1,6 @@
 (ns weasel-example.foo
-  [:require [weasel.repl :as repl]])
-
-;;; an auxillary namespace that exposes some symbols, for testing
-;;; cross-NS analysis at the REPL.
+  "An auxiliary namespace exposing a couple of vars, to show cross-namespace
+   analysis working at the REPL.")
 
 (def foo 1234)
 (def baz 456)
-
-(if (repl/alive?)
-  (println "Loaded foo"))

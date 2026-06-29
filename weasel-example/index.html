@@ -1,16 +1,14 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Websocket browser-connected REPL through nREPL with Piggieback</title>
+    <title>Weasel example</title>
   </head>
   <body>
-    <div id="content">
-      <script type="text/javascript" src="out/goog/base.js"></script>
-      <script type="text/javascript" src="weasel_example.js"></script>
-      <input type="text" name="afield" id="afield"/>
-      <script type="text/javascript">
-        goog.require('weasel_example.example');
-      </script>
-    </div>
+    <h1>Weasel example</h1>
+    <p>This page is wired to a Weasel REPL. Open your editor's REPL (or the
+       terminal REPL) and start evaluating ClojureScript here.</p>
+    <input type="text" id="afield" placeholder="poke me from the REPL">
+    <script src="out/main.js"></script>
   </body>
 </html>
