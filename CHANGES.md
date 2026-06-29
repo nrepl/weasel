@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.8.1 (unreleased)
+
 ## 0.8.0 (2026-06-29)
 
 ### Changes
