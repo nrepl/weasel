@@ -216,8 +216,10 @@ the Weasel REPL.
 
 ## Example
 
-An example project is included in the `weasel-example` subdirectory of
-this project.
+The `weasel-example` subdirectory has a small, self-contained project with a
+step-by-step tutorial that drives a Weasel REPL into both a web page and a Node
+process. It uses the Clojure CLI and runs against this repo's source, so it's a
+good way to try the current code end to end.
 
 ## Need help?
 
