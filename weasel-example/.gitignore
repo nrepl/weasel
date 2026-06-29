@@ -1,10 +1,7 @@
-pom.xml
-*jar
-/lib/
-/classes/
 /out/
+/out-node/
 /target/
-.lein-deps-sum
-.lein-repl-history
-.lein-plugins/
-/checkouts/
+/.cpcache/
+.nrepl-port
+*.jar
+pom.xml
