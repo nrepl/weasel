@@ -30,13 +30,13 @@ Weasel is intended to be used with nREPL's
 add Weasel as a dependency to `project.clj`:
 
 ```clojure
-[weasel "0.7.1" :exclusions [org.clojure/clojurescript]]
+[weasel "0.8.0" :exclusions [org.clojure/clojurescript]]
 ```
 
 Or, if you're using `deps.edn`:
 
 ```clojure
-{:deps {weasel/weasel {:mvn/version "0.7.1"}}}
+{:deps {weasel/weasel {:mvn/version "0.8.0"}}}
 ```
 
 Start up `lein repl` and piggieback the Weasel REPL environment onto
@@ -191,7 +191,7 @@ If you use the Clojure CLI, an alias like this gives you that nREPL server:
  {:cljs-repl
   {:extra-deps {nrepl/nrepl {:mvn/version "1.3.1"}
                 cider/piggieback {:mvn/version "0.6.0"}
-                weasel/weasel {:mvn/version "0.7.1"}
+                weasel/weasel {:mvn/version "0.8.0"}
                 org.clojure/clojurescript {:mvn/version "1.12.134"}}
    :main-opts ["-m" "nrepl.cmdline"
                "--middleware" "[cider.piggieback/wrap-cljs-repl]"]}}}
